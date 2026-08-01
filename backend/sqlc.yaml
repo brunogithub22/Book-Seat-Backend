@@ -1,0 +1,15 @@
+version: "2"
+sql:
+  - schema: "internal/database/migrations"
+    queries: "internal/database/queries"
+    engine: "postgresql"
+    gen:
+      go:
+        package: "sqlc"
+        out: "internal/database/sqlc"
+        sql_package: "pgx/v5"        # Enables native pgx/v5 driver types
+        emit_json_tags: true
+        emit_interface: true         # Generates the `Querier` interface for mock testing
+        overrides:
+          - db_type: "jsonb"
+            go_type: "github.com/sqlc-dev/pqtype.NullRawMessage"

@@ -1,0 +1,57 @@
+
+2026-07-27 22:21:22.902 CEST [7026] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-07-27 22:21:22.902 CEST [7026] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-07-27 22:21:22.905 CEST [7026] FATAL:  could not create lock file "/var/run/postgresql/.s.PGSQL.5433.lock": Permission denied
+2026-07-27 22:21:22.907 CEST [7026] LOG:  database system is shut down
+2026-07-27 22:22:50.490 CEST [10999] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-07-27 22:22:50.491 CEST [10999] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-07-27 22:22:50.494 CEST [10999] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-07-27 22:22:50.503 CEST [11005] LOG:  database system was shut down at 2026-07-27 22:18:26 CEST
+2026-07-27 22:22:50.508 CEST [10999] LOG:  database system is ready to accept connections
+2026-07-27 22:24:31.115 CEST [11013] FATAL:  database "bookingplatform" does not exist
+2026-07-27 22:25:02.971 CEST [11020] FATAL:  database "bookingplatform" does not exist
+2026-07-27 22:25:17.964 CEST [11024] FATAL:  database "bookingplatform" does not exist
+2026-07-27 22:27:35.705 CEST [11028] ERROR:  current database cannot be renamed
+2026-07-27 22:27:35.705 CEST [11028] STATEMENT:  ALTER DATABASE postgres RENAME TO bookingplatform;
+2026-07-27 22:27:50.602 CEST [11003] LOG:  checkpoint starting: time
+2026-07-27 22:27:54.841 CEST [11003] LOG:  checkpoint complete: wrote 42 buffers (0.3%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=4.222 s, sync=0.007 s, total=4.239 s; sync files=11, longest=0.004 s, average=0.001 s; distance=317 kB, estimate=317 kB; lsn=0/17AF048, redo lsn=0/17AEFB8
+2026-07-27 22:32:50.864 CEST [11003] LOG:  checkpoint starting: time
+2026-07-27 22:32:51.216 CEST [11003] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.313 s, sync=0.010 s, total=0.353 s; sync files=4, longest=0.006 s, average=0.003 s; distance=1 kB, estimate=286 kB; lsn=0/17AF6B0, redo lsn=0/17AF658
+2026-07-27 22:36:31.561 CEST [10999] LOG:  received fast shutdown request
+2026-07-27 22:36:31.564 CEST [10999] LOG:  aborting any active transactions
+2026-07-27 22:36:31.567 CEST [10999] LOG:  background worker "logical replication launcher" (PID 11008) exited with exit code 1
+2026-07-27 22:36:31.567 CEST [11003] LOG:  shutting down
+2026-07-27 22:36:31.570 CEST [11003] LOG:  checkpoint starting: shutdown immediate
+2026-07-27 22:36:31.586 CEST [11003] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.020 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=257 kB; lsn=0/17AF760, redo lsn=0/17AF760
+2026-07-27 22:36:31.608 CEST [10999] LOG:  database system is shut down
+2026-07-28 11:48:13.835 CEST [44566] FATAL:  data directory "/home/Bruno/code/Book/data/db" has invalid permissions
+2026-07-28 11:48:13.835 CEST [44566] DETAIL:  Permissions should be u=rwx (0700) or u=rwx,g=rx (0750).
+2026-07-28 11:50:34.053 CEST [44977] FATAL:  could not open directory "pg_notify": No such file or directory
+2026-07-28 11:50:34.057 CEST [44977] LOG:  database system is shut down
+2026-07-28 11:52:56.999 CEST [45428] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-07-28 11:52:57.002 CEST [45428] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-07-28 11:52:57.006 CEST [45428] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-07-28 11:52:57.012 CEST [45428] LOG:  could not open directory "pg_tblspc": No such file or directory
+2026-07-28 11:52:57.023 CEST [45434] LOG:  database system was shut down at 2026-07-27 22:36:31 CEST
+2026-07-28 11:52:57.023 CEST [45434] LOG:  creating missing WAL directory "pg_wal/archive_status"
+2026-07-28 11:52:57.024 CEST [45434] LOG:  creating missing WAL directory "pg_wal/summaries"
+2026-07-28 11:52:57.027 CEST [45434] LOG:  could not open directory "pg_tblspc": No such file or directory
+2026-07-28 11:52:57.027 CEST [45434] FATAL:  could not open directory "pg_replslot": No such file or directory
+2026-07-28 11:52:57.030 CEST [45428] LOG:  startup process (PID 45434) exited with exit code 1
+2026-07-28 11:52:57.030 CEST [45428] LOG:  terminating any other active server processes
+2026-07-28 11:52:57.032 CEST [45428] LOG:  shutting down due to startup process failure
+2026-07-28 11:52:57.035 CEST [45428] LOG:  database system is shut down
+2026-07-28 11:53:19.716 CEST [45540] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-07-28 11:53:19.716 CEST [45540] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-07-28 11:53:19.721 CEST [45540] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-07-28 11:53:19.735 CEST [45547] LOG:  database system was shut down at 2026-07-27 22:36:31 CEST
+2026-07-28 11:53:19.750 CEST [45540] LOG:  database system is ready to accept connections
+2026-07-28 11:58:19.834 CEST [45545] LOG:  checkpoint starting: time
+2026-07-28 11:58:19.875 CEST [45545] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.009 s, sync=0.003 s, total=0.041 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=0 kB; lsn=0/17AF868, redo lsn=0/17AF810
+2026-07-28 12:13:30.062 CEST [45540] LOG:  received fast shutdown request
+2026-07-28 12:13:30.071 CEST [45540] LOG:  aborting any active transactions
+2026-07-28 12:13:30.077 CEST [45540] LOG:  background worker "logical replication launcher" (PID 45552) exited with exit code 1
+2026-07-28 12:13:30.078 CEST [45545] LOG:  shutting down
+2026-07-28 12:13:30.083 CEST [45545] LOG:  checkpoint starting: shutdown immediate
+2026-07-28 12:13:30.111 CEST [45545] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.033 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB; lsn=0/17AF918, redo lsn=0/17AF918
+2026-07-28 12:13:30.138 CEST [45540] LOG:  database system is shut down
