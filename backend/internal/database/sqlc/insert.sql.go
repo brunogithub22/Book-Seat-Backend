@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/sqlc-dev/pqtype"
 )
 
 const createBook = `-- name: CreateBook :one
@@ -51,17 +52,19 @@ const createPerson = `-- name: CreatePerson :one
 INSERT INTO person (
     user_role,
     user_name,
-    surname
+    surname,
+    email
 ) VALUES (
-    $1, $2, $3
+    $1, $2, $3, $4
 )
 RETURNING id,user_name,surname
 `
 
 type CreatePersonParams struct {
-	UserRole TypeRole `json:"user_role"`
-	UserName string   `json:"user_name"`
-	Surname  string   `json:"surname"`
+	UserRole pqtype.NullRawMessage `json:"user_role"`
+	UserName string                `json:"user_name"`
+	Surname  string                `json:"surname"`
+	Email    string                `json:"email"`
 }
 
 type CreatePersonRow struct {
@@ -71,7 +74,12 @@ type CreatePersonRow struct {
 }
 
 func (q *Queries) CreatePerson(ctx context.Context, arg CreatePersonParams) (CreatePersonRow, error) {
-	row := q.db.QueryRow(ctx, createPerson, arg.UserRole, arg.UserName, arg.Surname)
+	row := q.db.QueryRow(ctx, createPerson,
+		arg.UserRole,
+		arg.UserName,
+		arg.Surname,
+		arg.Email,
+	)
 	var i CreatePersonRow
 	err := row.Scan(&i.ID, &i.UserName, &i.Surname)
 	return i, err

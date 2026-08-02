@@ -3,15 +3,20 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 // InitDB initializes and configures a thread-safe PostgreSQL connection pool.
 func InitDB(ctx context.Context) (*pgxpool.Pool, error) {
 	// 1. Read the connection string from environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Println("no .env file found, using system env vars")
+	}
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		return nil, fmt.Errorf("DATABASE_URL environment variable is not set")

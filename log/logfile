@@ -1,57 +1,70 @@
-
-2026-07-27 22:21:22.902 CEST [7026] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
-2026-07-27 22:21:22.902 CEST [7026] LOG:  listening on IPv4 address "127.0.0.1", port 5433
-2026-07-27 22:21:22.905 CEST [7026] FATAL:  could not create lock file "/var/run/postgresql/.s.PGSQL.5433.lock": Permission denied
-2026-07-27 22:21:22.907 CEST [7026] LOG:  database system is shut down
-2026-07-27 22:22:50.490 CEST [10999] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
-2026-07-27 22:22:50.491 CEST [10999] LOG:  listening on IPv4 address "127.0.0.1", port 5433
-2026-07-27 22:22:50.494 CEST [10999] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
-2026-07-27 22:22:50.503 CEST [11005] LOG:  database system was shut down at 2026-07-27 22:18:26 CEST
-2026-07-27 22:22:50.508 CEST [10999] LOG:  database system is ready to accept connections
-2026-07-27 22:24:31.115 CEST [11013] FATAL:  database "bookingplatform" does not exist
-2026-07-27 22:25:02.971 CEST [11020] FATAL:  database "bookingplatform" does not exist
-2026-07-27 22:25:17.964 CEST [11024] FATAL:  database "bookingplatform" does not exist
-2026-07-27 22:27:35.705 CEST [11028] ERROR:  current database cannot be renamed
-2026-07-27 22:27:35.705 CEST [11028] STATEMENT:  ALTER DATABASE postgres RENAME TO bookingplatform;
-2026-07-27 22:27:50.602 CEST [11003] LOG:  checkpoint starting: time
-2026-07-27 22:27:54.841 CEST [11003] LOG:  checkpoint complete: wrote 42 buffers (0.3%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=4.222 s, sync=0.007 s, total=4.239 s; sync files=11, longest=0.004 s, average=0.001 s; distance=317 kB, estimate=317 kB; lsn=0/17AF048, redo lsn=0/17AEFB8
-2026-07-27 22:32:50.864 CEST [11003] LOG:  checkpoint starting: time
-2026-07-27 22:32:51.216 CEST [11003] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.313 s, sync=0.010 s, total=0.353 s; sync files=4, longest=0.006 s, average=0.003 s; distance=1 kB, estimate=286 kB; lsn=0/17AF6B0, redo lsn=0/17AF658
-2026-07-27 22:36:31.561 CEST [10999] LOG:  received fast shutdown request
-2026-07-27 22:36:31.564 CEST [10999] LOG:  aborting any active transactions
-2026-07-27 22:36:31.567 CEST [10999] LOG:  background worker "logical replication launcher" (PID 11008) exited with exit code 1
-2026-07-27 22:36:31.567 CEST [11003] LOG:  shutting down
-2026-07-27 22:36:31.570 CEST [11003] LOG:  checkpoint starting: shutdown immediate
-2026-07-27 22:36:31.586 CEST [11003] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.020 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=257 kB; lsn=0/17AF760, redo lsn=0/17AF760
-2026-07-27 22:36:31.608 CEST [10999] LOG:  database system is shut down
-2026-07-28 11:48:13.835 CEST [44566] FATAL:  data directory "/home/Bruno/code/Book/data/db" has invalid permissions
-2026-07-28 11:48:13.835 CEST [44566] DETAIL:  Permissions should be u=rwx (0700) or u=rwx,g=rx (0750).
-2026-07-28 11:50:34.053 CEST [44977] FATAL:  could not open directory "pg_notify": No such file or directory
-2026-07-28 11:50:34.057 CEST [44977] LOG:  database system is shut down
-2026-07-28 11:52:56.999 CEST [45428] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
-2026-07-28 11:52:57.002 CEST [45428] LOG:  listening on IPv4 address "127.0.0.1", port 5433
-2026-07-28 11:52:57.006 CEST [45428] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
-2026-07-28 11:52:57.012 CEST [45428] LOG:  could not open directory "pg_tblspc": No such file or directory
-2026-07-28 11:52:57.023 CEST [45434] LOG:  database system was shut down at 2026-07-27 22:36:31 CEST
-2026-07-28 11:52:57.023 CEST [45434] LOG:  creating missing WAL directory "pg_wal/archive_status"
-2026-07-28 11:52:57.024 CEST [45434] LOG:  creating missing WAL directory "pg_wal/summaries"
-2026-07-28 11:52:57.027 CEST [45434] LOG:  could not open directory "pg_tblspc": No such file or directory
-2026-07-28 11:52:57.027 CEST [45434] FATAL:  could not open directory "pg_replslot": No such file or directory
-2026-07-28 11:52:57.030 CEST [45428] LOG:  startup process (PID 45434) exited with exit code 1
-2026-07-28 11:52:57.030 CEST [45428] LOG:  terminating any other active server processes
-2026-07-28 11:52:57.032 CEST [45428] LOG:  shutting down due to startup process failure
-2026-07-28 11:52:57.035 CEST [45428] LOG:  database system is shut down
-2026-07-28 11:53:19.716 CEST [45540] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
-2026-07-28 11:53:19.716 CEST [45540] LOG:  listening on IPv4 address "127.0.0.1", port 5433
-2026-07-28 11:53:19.721 CEST [45540] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
-2026-07-28 11:53:19.735 CEST [45547] LOG:  database system was shut down at 2026-07-27 22:36:31 CEST
-2026-07-28 11:53:19.750 CEST [45540] LOG:  database system is ready to accept connections
-2026-07-28 11:58:19.834 CEST [45545] LOG:  checkpoint starting: time
-2026-07-28 11:58:19.875 CEST [45545] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.009 s, sync=0.003 s, total=0.041 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=0 kB; lsn=0/17AF868, redo lsn=0/17AF810
-2026-07-28 12:13:30.062 CEST [45540] LOG:  received fast shutdown request
-2026-07-28 12:13:30.071 CEST [45540] LOG:  aborting any active transactions
-2026-07-28 12:13:30.077 CEST [45540] LOG:  background worker "logical replication launcher" (PID 45552) exited with exit code 1
-2026-07-28 12:13:30.078 CEST [45545] LOG:  shutting down
-2026-07-28 12:13:30.083 CEST [45545] LOG:  checkpoint starting: shutdown immediate
-2026-07-28 12:13:30.111 CEST [45545] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.033 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB; lsn=0/17AF918, redo lsn=0/17AF918
-2026-07-28 12:13:30.138 CEST [45540] LOG:  database system is shut down
+2026-08-02 17:44:56.802 CEST [3887] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-02 17:44:56.803 CEST [3887] LOG:  listening on IPv6 address "::1", port 5433
+2026-08-02 17:44:56.803 CEST [3887] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-02 17:44:57.047 CEST [3887] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-02 17:44:57.128 CEST [3893] LOG:  database system was shut down at 2026-07-29 18:03:14 CEST
+2026-08-02 17:44:57.129 CEST [3893] LOG:  invalid record length at 0/1A56A80: expected at least 24, got 0
+2026-08-02 17:44:57.129 CEST [3893] LOG:  invalid checkpoint record
+2026-08-02 17:44:57.129 CEST [3893] PANIC:  could not locate a valid checkpoint record at 0/1A56A80
+2026-08-02 17:44:57.129 CEST [3887] LOG:  startup process (PID 3893) was terminated by signal 6: Aborted
+2026-08-02 17:44:57.129 CEST [3887] LOG:  terminating any other active server processes
+2026-08-02 17:44:57.130 CEST [3887] LOG:  shutting down due to startup process failure
+2026-08-02 17:44:57.132 CEST [3887] LOG:  database system is shut down
+2026-08-02 17:56:26.236 CEST [4379] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-02 17:56:26.236 CEST [4379] LOG:  listening on IPv6 address "::1", port 5433
+2026-08-02 17:56:26.236 CEST [4379] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-02 17:56:26.280 CEST [4379] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-02 17:56:26.385 CEST [4385] LOG:  database system was shut down at 2026-08-02 17:56:23 CEST
+2026-08-02 17:56:26.587 CEST [4379] LOG:  database system is ready to accept connections
+2026-08-02 18:01:26.481 CEST [4383] LOG:  checkpoint starting: time
+2026-08-02 18:01:26.761 CEST [4383] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.046 s, sync=0.040 s, total=0.280 s; sync files=2, longest=0.020 s, average=0.020 s; distance=0 kB, estimate=0 kB; lsn=0/2000168, redo lsn=0/2000110
+2026-08-02 19:26:28.453 CEST [4383] LOG:  checkpoint starting: time
+2026-08-02 19:26:31.978 CEST [4383] LOG:  checkpoint complete: wrote 33 buffers (0.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=3.339 s, sync=0.032 s, total=3.525 s; sync files=32, longest=0.030 s, average=0.001 s; distance=134 kB, estimate=134 kB; lsn=0/2021BC0, redo lsn=0/2021B68
+2026-08-02 19:31:29.077 CEST [4383] LOG:  checkpoint starting: time
+2026-08-02 19:31:30.083 CEST [4383] LOG:  checkpoint complete: wrote 7 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.725 s, sync=0.133 s, total=1.007 s; sync files=9, longest=0.110 s, average=0.015 s; distance=17 kB, estimate=122 kB; lsn=0/20262B0, redo lsn=0/2026258
+2026-08-02 19:36:29.181 CEST [4383] LOG:  checkpoint starting: time
+2026-08-02 19:36:29.474 CEST [4383] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.101 s, sync=0.044 s, total=0.294 s; sync files=1, longest=0.044 s, average=0.044 s; distance=2 kB, estimate=110 kB; lsn=0/2026AD8, redo lsn=0/2026A80
+2026-08-02 19:51:29.773 CEST [4383] LOG:  checkpoint starting: time
+2026-08-02 19:51:30.828 CEST [4383] LOG:  checkpoint complete: wrote 7 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.725 s, sync=0.128 s, total=1.055 s; sync files=7, longest=0.087 s, average=0.019 s; distance=17 kB, estimate=101 kB; lsn=0/202B128, redo lsn=0/202B0D0
+2026-08-02 19:54:09.447 CEST [19538] ERROR:  syntax error at or near "DROP" at character 29
+2026-08-02 19:54:09.447 CEST [19538] STATEMENT:  DROP TABLE shema_migrations
+	DROP TABLE IF EXISTS schema_migrations;
+2026-08-02 19:55:27.227 CEST [19983] ERROR:  table "booking" does not exist
+2026-08-02 19:55:27.227 CEST [19983] STATEMENT:  DROP TABLE booking;
+	DROP TABLE seat;
+	DROP TABLE organization;
+	DROP TABLE person;
+	DROP TABLE room;
+	DROP TABLE user_book_booking;
+	DROP TABLE user_book_manage;
+	DROP TABLE user_room_booking;
+	DROP TABLE user_seat_booking;
+	
+2026-08-02 19:56:29.925 CEST [4383] LOG:  checkpoint starting: time
+2026-08-02 19:56:44.168 CEST [4383] LOG:  checkpoint complete: wrote 138 buffers (0.8%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=13.988 s, sync=0.096 s, total=14.243 s; sync files=89, longest=0.065 s, average=0.002 s; distance=879 kB, estimate=879 kB; lsn=0/2106E48, redo lsn=0/2106DB8
+2026-08-02 20:01:29.268 CEST [4383] LOG:  checkpoint starting: time
+2026-08-02 20:01:31.939 CEST [4383] LOG:  checkpoint complete: wrote 23 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.332 s, sync=0.160 s, total=2.671 s; sync files=12, longest=0.136 s, average=0.014 s; distance=143 kB, estimate=805 kB; lsn=0/212AB10, redo lsn=0/212AAB8
+2026-08-02 20:02:03.248 CEST [20936] ERROR:  cannot drop table book because other objects depend on it
+2026-08-02 20:02:03.248 CEST [20936] DETAIL:  constraint user_book_booking_book_id_fkey on table user_book_booking depends on table book
+	constraint user_book_manage_book_id_fkey on table user_book_manage depends on table book
+2026-08-02 20:02:03.248 CEST [20936] HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+2026-08-02 20:02:03.248 CEST [20936] STATEMENT:  DROP TABLE book;
+	DROP TABLE seat;
+	DROP TABLE organization;
+	DROP TABLE person;
+	DROP TABLE room;
+	DROP TABLE user_book_booking;
+	DROP TABLE user_book_manage;
+	DROP TABLE user_room_booking;
+	DROP TABLE user_seat_booking;
+	
+2026-08-02 20:06:30.037 CEST [4383] LOG:  checkpoint starting: time
+2026-08-02 20:06:43.733 CEST [4383] LOG:  checkpoint complete: wrote 131 buffers (0.8%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=13.356 s, sync=0.094 s, total=13.697 s; sync files=120, longest=0.038 s, average=0.001 s; distance=1161 kB, estimate=1161 kB; lsn=0/224D0E0, redo lsn=0/224D050
+2026-08-02 20:08:10.244 CEST [4379] LOG:  received fast shutdown request
+2026-08-02 20:08:10.290 CEST [4379] LOG:  aborting any active transactions
+2026-08-02 20:08:10.294 CEST [4379] LOG:  background worker "logical replication launcher" (PID 4389) exited with exit code 1
+2026-08-02 20:08:10.306 CEST [19538] FATAL:  terminating connection due to administrator command
+2026-08-02 20:08:10.308 CEST [4383] LOG:  shutting down
+2026-08-02 20:08:10.357 CEST [4383] LOG:  checkpoint starting: shutdown immediate
+2026-08-02 20:08:10.658 CEST [4383] LOG:  checkpoint complete: wrote 29 buffers (0.2%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.142 s, total=0.351 s; sync files=6, longest=0.141 s, average=0.024 s; distance=202 kB, estimate=1065 kB; lsn=0/227F8F8, redo lsn=0/227F8F8
+2026-08-02 20:08:10.723 CEST [4379] LOG:  database system is shut down

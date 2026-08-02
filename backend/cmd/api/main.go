@@ -37,15 +37,12 @@ func main() {
 		IdleTimeout:  120 * time.Second, // Controls keep-alive connections
 	}
 
-	// 4. Start server in a background goroutine
-	go func() {
-		log.Println("Server running on http://localhost:8080")
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("Server error: %v", err)
-		}
-	}()
-
 	go shutdown(srv)
+
+	log.Println("Server running on http://localhost:8080")
+	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatalf("Server error: %v", err)
+	}
 
 	log.Println("Server exited cleanly.")
 }

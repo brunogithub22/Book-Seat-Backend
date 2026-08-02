@@ -5,55 +5,9 @@
 package sqlc
 
 import (
-	"database/sql/driver"
-	"fmt"
-
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/sqlc-dev/pqtype"
 )
-
-type TypeRole string
-
-const (
-	TypeRoleStudent   TypeRole = "student"
-	TypeRoleTeacher   TypeRole = "teacher"
-	TypeRoleLibrarian TypeRole = "librarian"
-	TypeRoleAdmin     TypeRole = "admin"
-)
-
-func (e *TypeRole) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = TypeRole(s)
-	case string:
-		*e = TypeRole(s)
-	default:
-		return fmt.Errorf("unsupported scan type for TypeRole: %T", src)
-	}
-	return nil
-}
-
-type NullTypeRole struct {
-	TypeRole TypeRole `json:"type_role"`
-	Valid    bool     `json:"valid"` // Valid is true if TypeRole is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullTypeRole) Scan(value interface{}) error {
-	if value == nil {
-		ns.TypeRole, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.TypeRole.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullTypeRole) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.TypeRole), nil
-}
 
 type Book struct {
 	ID              pgtype.UUID `json:"id"`
@@ -63,11 +17,19 @@ type Book struct {
 	BookDescription string      `json:"book_description"`
 }
 
+type Organization struct {
+	ID               pgtype.UUID           `json:"id"`
+	NameOrganization string                `json:"name_organization"`
+	AdminID          pgtype.UUID           `json:"admin_id"`
+	RoleName         pqtype.NullRawMessage `json:"role_name"`
+}
+
 type Person struct {
-	ID       pgtype.UUID `json:"id"`
-	UserRole TypeRole    `json:"user_role"`
-	UserName string      `json:"user_name"`
-	Surname  string      `json:"surname"`
+	ID       pgtype.UUID           `json:"id"`
+	UserName string                `json:"user_name"`
+	UserRole pqtype.NullRawMessage `json:"user_role"`
+	Surname  string                `json:"surname"`
+	Email    string                `json:"email"`
 }
 
 type Room struct {
