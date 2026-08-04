@@ -19,3 +19,5 @@ yarn-error.log*
 # editor
 .vscode/
 .idea/
+
+./data/db
