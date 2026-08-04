@@ -22,7 +22,8 @@ func NewRouter(db *pgxpool.Pool) http.Handler {
 	// -----------------------------------------------------------------
 	// PUBLIC ROUTES
 	// -----------------------------------------------------------------
-	mux.HandleFunc("GET /singinDefault", userHandler.SignInDefault)
+	mux.HandleFunc("POST /api/auth/signup", userHandler.SignUp)
+	mux.HandleFunc("POST /api/auth/signin", userHandler.SignIn)
 
 	// OAuth 2.0 Auth Flow
 	//mux.HandleFunc("GET /auth/google/login", authHandler.HandleGoogleLogin)

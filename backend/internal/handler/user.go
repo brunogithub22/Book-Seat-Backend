@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/internal/database/sqlc"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -20,16 +21,95 @@ func NewUserHandler(pool *pgxpool.Pool) *UserHandler {
 	return &UserHandler{DB: pool, Queries: queries}
 }
 
-// UserProfileResponse defines the JSON structure returned to clients.
-type UserProfileResponse struct {
+type SignupPayload struct {
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
+
+type SigninPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type AuthResponse struct {
+	Token string   `json:"token"`
+	User  UserInfo `json:"user"`
+}
+
+type UserInfo struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
 	Name  string `json:"name"`
 }
 
-func (h *UserHandler) SignInDefault(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
-	// 3. Return JSON response
+	var payload SignupPayload
+
+	defer r.Body.Close()
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields() // rejects unexpected fields instead of silently ignoring them
+
+	if err := decoder.Decode(&payload); err != nil {
+		http.Error(w, `{"message":"invalid request body"}`, http.StatusBadRequest)
+		return
+	}
+
+	if payload.Email == "" || payload.Password == "" {
+		http.Error(w, `{"message":"email and password are required"}`, http.StatusBadRequest)
+		return
+	}
+
+	slog.Info("user logged in", "email", payload.Email)
+
+	// TODO: look up user, verify password hash (bcrypt.CompareHashAndPassword), issue token
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode("")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(AuthResponse{
+		Token: "generated-jwt-here",
+		User: UserInfo{
+			ID:    "user-id",
+			Email: payload.Email,
+			Name:  "placeholder",
+		},
+	})
+}
+
+func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
+
+	var payload SigninPayload
+
+	defer r.Body.Close()
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields() // rejects unexpected fields instead of silently ignoring them
+
+	if err := decoder.Decode(&payload); err != nil {
+		http.Error(w, `{"message":"invalid request body"}`, http.StatusBadRequest)
+		return
+	}
+
+	if payload.Email == "" || payload.Password == "" {
+		http.Error(w, `{"message":"email and password are required"}`, http.StatusBadRequest)
+		return
+	}
+
+	slog.Info("user logged in", "email", payload.Email)
+
+	// TODO: look up user, verify password hash (bcrypt.CompareHashAndPassword), issue token
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(AuthResponse{
+		Token: "generated-jwt-here",
+		User: UserInfo{
+			ID:    "user-id",
+			Email: payload.Email,
+			Name:  "placeholder",
+		},
+	})
 }
