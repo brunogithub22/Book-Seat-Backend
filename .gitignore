@@ -20,4 +20,4 @@ yarn-error.log*
 .vscode/
 .idea/
 
-./data/db
+/data/db
