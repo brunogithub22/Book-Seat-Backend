@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -15,7 +15,7 @@ import (
 func InitDB(ctx context.Context) (*pgxpool.Pool, error) {
 	// 1. Read the connection string from environment variables
 	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file found, using system env vars")
+		slog.Error("no .env file found, using system env vars")
 	}
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {

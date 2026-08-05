@@ -258,3 +258,102 @@
 	
 2026-08-05 16:41:05.856 CEST [8433] LOG:  checkpoint starting: time
 2026-08-05 16:42:48.926 CEST [8433] LOG:  checkpoint complete: wrote 1025 buffers (6.3%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=102.942 s, sync=0.082 s, total=103.072 s; sync files=396, longest=0.007 s, average=0.001 s; distance=5421 kB, estimate=5421 kB; lsn=0/1CAAD80, redo lsn=0/1CAACF0
+2026-08-05 20:46:03.074 CEST [10502] LOG:  a partire da PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-05 20:46:03.074 CEST [10502] LOG:  in ascolto sull'indirizzo IPv6 "::1", porta 5433
+2026-08-05 20:46:03.074 CEST [10502] LOG:  in ascolto sull'indirizzo IPv4 "127.0.0.1", porta 5433
+2026-08-05 20:46:03.108 CEST [10502] LOG:  in ascolto sul socket Unix "/tmp/.s.PGSQL.5433"
+2026-08-05 20:46:03.179 CEST [10508] LOG:  il database è stato arrestato alle 2026-08-05 20:46:01 CEST
+2026-08-05 20:46:03.233 CEST [10502] LOG:  il database è pronto ad accettare connessioni
+2026-08-05 20:46:07.698 CEST [10545] ERRORE:  errore di sintassi a o presso "16891" al carattere 234
+2026-08-05 20:46:07.698 CEST [10545] ISTRUZIONE:  CREATE EVENT TRIGGER timescaledb_ddl_command_end ON ddl_command_end
+	         WHEN TAG IN ('ALTER TABLE', 'CREATE TRIGGER', 'CREATE TABLE', 'CREATE INDEX', 'ALTER INDEX', 'DROP TABLE', 'DROP INDEX', 'DROP SCHEMA')
+	   EXECUTE FUNCTION 16891();
+	
+	
+	
+2026-08-05 20:46:07.711 CEST [10545] ERRORE:  il trigger di evento "timescaledb_ddl_command_end" non esiste
+2026-08-05 20:46:07.711 CEST [10545] ISTRUZIONE:  ALTER EVENT TRIGGER timescaledb_ddl_command_end OWNER TO bruno;
+	
+	
+2026-08-05 20:46:07.711 CEST [10545] ERRORE:  errore di sintassi a o presso "16891" al carattere 79
+2026-08-05 20:46:07.711 CEST [10545] ISTRUZIONE:  CREATE EVENT TRIGGER timescaledb_ddl_sql_drop ON sql_drop
+	   EXECUTE FUNCTION 16891();
+	
+	
+	
+2026-08-05 20:46:07.711 CEST [10545] ERRORE:  il trigger di evento "timescaledb_ddl_sql_drop" non esiste
+2026-08-05 20:46:07.711 CEST [10545] ISTRUZIONE:  ALTER EVENT TRIGGER timescaledb_ddl_sql_drop OWNER TO bruno;
+	
+	
+2026-08-05 20:51:03.278 CEST [10506] LOG:  inizio checkpoint: time
+2026-08-05 20:52:02.610 CEST [14299] ERRORE:  il valore nullo nella colonna "user_id" della relazione "user_sessions" viola il vincolo non nullo
+2026-08-05 20:52:02.610 CEST [14299] DETTAGLI:  La riga in errore contiene (1b1c4a57-921b-49a2-bc73-4be5716c63f3, null, 9b0be65b5beb3855df45dd97c1603a3ce665c5658eee5c46c3920f92a0454c12, node, ::1, f, 2026-08-12 20:52:02.609171+02, 2026-08-05 20:52:02.609171+02).
+2026-08-05 20:52:02.610 CEST [14299] ISTRUZIONE:  -- name: InsertRefreshToken :exec
+	INSERT INTO user_sessions(
+	    user_id,
+	    token_hash,
+	    user_agent,
+	    ip_address,
+	    is_revoked,
+	    expires_at,
+	    created_at
+	)VALUES(
+	    $1, $2, $3, $4, $5, $6, $7
+	)
+	
+2026-08-05 20:52:46.840 CEST [10506] LOG:  checkpoint complete: wrote 1023 buffers (6.2%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=102.870 s, sync=0.124 s, total=103.562 s; sync files=442, longest=0.064 s, average=0.001 s; distance=5502 kB, estimate=5502 kB; lsn=0/1D341D0, redo lsn=0/1CBF120
+2026-08-05 20:59:10.773 CEST [15790] ERRORE:  errore di sintassi a o presso "Select" al carattere 44
+2026-08-05 20:59:10.773 CEST [15790] ISTRUZIONE:  Delete From person Where user_name = Bruno
+	Select * From person;
+2026-08-05 21:03:22.571 CEST [16787] ERRORE:  errore di sintassi a o presso "Select" al carattere 42
+2026-08-05 21:03:22.571 CEST [16787] ISTRUZIONE:  Delete From person Where user_name=Bruno
+	Select * From person;
+2026-08-05 21:03:39.477 CEST [16787] ERRORE:  la colonna "bruno" non esiste al carattere 36
+2026-08-05 21:03:39.477 CEST [16787] ISTRUZIONE:  Delete From person Where user_name=Bruno;
+2026-08-05 21:03:54.042 CEST [16787] ERRORE:  la colonna "Bruno" non esiste al carattere 36
+2026-08-05 21:03:54.042 CEST [16787] ISTRUZIONE:  Delete From person Where user_name="Bruno";
+2026-08-05 21:06:04.138 CEST [10506] LOG:  inizio checkpoint: time
+2026-08-05 21:06:07.851 CEST [10506] LOG:  checkpoint complete: wrote 34 buffers (0.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=3.435 s, sync=0.106 s, total=3.713 s; sync files=9, longest=0.091 s, average=0.012 s; distance=468 kB, estimate=4998 kB; lsn=0/1D343A8, redo lsn=0/1D34350
+2026-08-05 21:08:34.371 CEST [14300] ERRORE:  il valore nullo nella colonna "user_id" della relazione "user_sessions" viola il vincolo non nullo
+2026-08-05 21:08:34.371 CEST [14300] DETTAGLI:  La riga in errore contiene (337b1509-f53a-491e-b7c2-8c6e4ae91188, null, 9e9992b6ec3d5e010835aa65cb8656040463e3d325df0c4dba5a064f344547da, node, ::1, f, 2026-08-12 21:08:34.370242+02, 2026-08-05 21:08:34.370242+02).
+2026-08-05 21:08:34.371 CEST [14300] ISTRUZIONE:  -- name: InsertRefreshToken :exec
+	INSERT INTO user_sessions(
+	    user_id,
+	    token_hash,
+	    user_agent,
+	    ip_address,
+	    is_revoked,
+	    expires_at,
+	    created_at
+	)VALUES(
+	    $1, $2, $3, $4, $5, $6, $7
+	)
+	
+2026-08-05 21:11:04.950 CEST [10506] LOG:  inizio checkpoint: time
+2026-08-05 21:11:05.371 CEST [10506] LOG:  checkpoint complete: wrote 2 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.224 s, sync=0.032 s, total=0.422 s; sync files=3, longest=0.027 s, average=0.011 s; distance=0 kB, estimate=4499 kB; lsn=0/1D34740, redo lsn=0/1D346E8
+2026-08-05 21:16:04.461 CEST [10506] LOG:  inizio checkpoint: time
+2026-08-05 21:16:05.667 CEST [10506] LOG:  checkpoint complete: wrote 9 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.927 s, sync=0.115 s, total=1.207 s; sync files=7, longest=0.097 s, average=0.017 s; distance=2 kB, estimate=4049 kB; lsn=0/1D35040, redo lsn=0/1D34FE8
+2026-08-05 21:16:34.309 CEST [16787] ERRORE:  la relazione "user_session" non esiste al carattere 15
+2026-08-05 21:16:34.309 CEST [16787] ISTRUZIONE:  Select * From user_session;
+2026-08-05 21:21:04.766 CEST [10506] LOG:  inizio checkpoint: time
+2026-08-05 21:21:05.146 CEST [10506] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.102 s, sync=0.044 s, total=0.380 s; sync files=1, longest=0.044 s, average=0.044 s; distance=0 kB, estimate=3644 kB; lsn=0/1D35268, redo lsn=0/1D35210
+2026-08-05 21:24:50.227 CEST [10502] LOG:  richiesta di arresto fast ricevuta
+2026-08-05 21:24:50.313 CEST [10502] LOG:  interruzione di tutte le transazioni attive
+2026-08-05 21:24:50.319 CEST [10502] LOG:  processo di lavoro in background "logical replication launcher" (PID 10512) è uscito con codice di uscita 1
+2026-08-05 21:24:50.320 CEST [10506] LOG:  arresto in corso
+2026-08-05 21:24:50.364 CEST [10506] LOG:  inizio checkpoint: shutdown immediate
+2026-08-05 21:24:50.632 CEST [10506] LOG:  checkpoint complete: wrote 6 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.024 s, sync=0.097 s, total=0.312 s; sync files=7, longest=0.077 s, average=0.014 s; distance=2 kB, estimate=3280 kB; lsn=0/1D35BB0, redo lsn=0/1D35BB0
+2026-08-05 21:24:50.740 CEST [10502] LOG:  il database è stato arrestato
+2026-08-05 21:25:10.617 CEST [18622] LOG:  a partire da PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-05 21:25:10.632 CEST [18622] LOG:  in ascolto sull'indirizzo IPv6 "::1", porta 5433
+2026-08-05 21:25:10.632 CEST [18622] LOG:  in ascolto sull'indirizzo IPv4 "127.0.0.1", porta 5433
+2026-08-05 21:25:10.682 CEST [18622] LOG:  in ascolto sul socket Unix "/tmp/.s.PGSQL.5433"
+2026-08-05 21:25:10.820 CEST [18628] LOG:  il database è stato arrestato alle 2026-08-05 21:24:50 CEST
+2026-08-05 21:25:10.899 CEST [18622] LOG:  il database è pronto ad accettare connessioni
+2026-08-05 21:25:21.026 CEST [18622] LOG:  richiesta di arresto fast ricevuta
+2026-08-05 21:25:21.080 CEST [18622] LOG:  interruzione di tutte le transazioni attive
+2026-08-05 21:25:21.083 CEST [18622] LOG:  processo di lavoro in background "logical replication launcher" (PID 18632) è uscito con codice di uscita 1
+2026-08-05 21:25:21.083 CEST [18626] LOG:  arresto in corso
+2026-08-05 21:25:21.124 CEST [18626] LOG:  inizio checkpoint: shutdown immediate
+2026-08-05 21:25:21.515 CEST [18626] LOG:  checkpoint complete: wrote 26 buffers (0.2%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.068 s, sync=0.173 s, total=0.433 s; sync files=10, longest=0.145 s, average=0.018 s; distance=169 kB, estimate=169 kB; lsn=0/1D60188, redo lsn=0/1D60188
+2026-08-05 21:25:21.607 CEST [18622] LOG:  il database è stato arrestato

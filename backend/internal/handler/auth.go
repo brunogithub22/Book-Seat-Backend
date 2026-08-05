@@ -4,9 +4,13 @@ import (
 	"backend/internal/database/sqlc"
 	"encoding/json"
 	"errors"
+	"log"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sqlc-dev/pqtype"
@@ -43,7 +47,6 @@ type SigninPayload struct {
 }
 
 type UserInfo struct {
-	ID    string `json:"id"`
 	Email string `json:"email"`
 	Name  string `json:"name"`
 }
@@ -57,7 +60,17 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	var payload SignupPayload
 	var hashedPassword string
-	var tokenService = security.NewTokenService("your-secret-key")
+	userAgent := r.Header.Get("User-Agent")
+	clientIP := security.GetClientIP(r)
+
+	if err := godotenv.Load(); err != nil {
+		log.Println("no .env file found, using system env vars")
+	}
+	jwtPWD := os.Getenv("PASSWORD_DUMMY")
+	if jwtPWD == "" {
+		return
+	}
+	var tokenService = security.NewTokenService(jwtPWD)
 
 	defer r.Body.Close()
 
@@ -89,7 +102,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !exists {
-		hashedPassword, err := service.HashPassword(h.ArgonHasher, payload.Password)
+		hashedPassword, err = service.HashPassword(h.ArgonHasher, payload.Password)
 		if err != nil {
 			slog.Error("Failed to hash password", "error", err.Error())
 			http.Error(w, `{"message":"failed to hash password"}`, http.StatusInternalServerError)
@@ -122,7 +135,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// 1. Create the JWT access token
-	accessToken, err := tokenService.GenerateAccessToken(user.ID, user.Email)
+	accessToken, err := tokenService.GenerateAccessToken(newUser.ID.String(), newUser.Email)
 	if err != nil {
 		slog.Error("failed to generate access token", "error", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -139,9 +152,13 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	// 3. Persist only the hash
 	if err := h.Queries.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
-		UserID:    user.ID,
+		UserID:    newUser.ID,
 		TokenHash: refreshHash,
 		ExpiresAt: pgtype.Timestamptz{Time: time.Now().Add(security.RefreshTokenTTL), Valid: true},
+		UserAgent: pgtype.Text{String: userAgent, Valid: userAgent != ""},
+		IpAddress: pgtype.Text{String: clientIP, Valid: clientIP != ""},
+		IsRevoked: false,
+		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
 	}); err != nil {
 		slog.Error("failed to store refresh token", "error", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -151,20 +168,19 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	// 4. Send both raw tokens to the browser as HttpOnly cookies
 	security.SetAuthCookies(w, accessToken, refreshToken)
 
-	slog.Info("New user created", "email", newUser.UserName, "id", newUser.ID)
+	slog.Info("New user created", "email", newUser.Email, "id", newUser.ID)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
 		UserInfo{
-			ID:    "user-id",
 			Email: payload.Email,
-			Name:  "placeholder",
+			Name:  payload.FirstName + payload.LastName,
 		},
 	)
 }
 
-func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	var payload SigninPayload
 
@@ -191,7 +207,6 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
 		UserInfo{
-			ID:    "user-id",
 			Email: payload.Email,
 			Name:  "placeholder",
 		},

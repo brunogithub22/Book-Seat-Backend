@@ -8,7 +8,7 @@ INSERT INTO person (
 ) VALUES (
     $1, $2, $3, $4, $5
 )
-RETURNING id,user_name,surname; 
+RETURNING id,email; 
 
 -- name: CreateRoom :one
 INSERT INTO room(
@@ -39,6 +39,19 @@ INSERT INTO book(
     $1, $2, $3, $4
 )
 RETURNING id, title;
+
+-- name: InsertRefreshToken :exec
+INSERT INTO user_sessions(
+    user_id,
+    token_hash,
+    user_agent,
+    ip_address,
+    is_revoked,
+    expires_at,
+    created_at
+)VALUES(
+    $1, $2, $3, $4, $5, $6, $7
+);
 
 -- name: CreateUserRoomBooking :one
 INSERT INTO user_room_booking (

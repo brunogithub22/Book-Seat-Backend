@@ -22,6 +22,7 @@ type Querier interface {
 	DeleteUser(ctx context.Context, arg DeleteUserParams) error
 	GetAllFromBooks(ctx context.Context) ([]Book, error)
 	GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error)
+	InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error
 }
 
 var _ Querier = (*Queries)(nil)

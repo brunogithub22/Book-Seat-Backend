@@ -58,7 +58,7 @@ INSERT INTO person (
 ) VALUES (
     $1, $2, $3, $4, $5
 )
-RETURNING id,user_name,surname
+RETURNING id,email
 `
 
 type CreatePersonParams struct {
@@ -70,9 +70,8 @@ type CreatePersonParams struct {
 }
 
 type CreatePersonRow struct {
-	ID       pgtype.UUID `json:"id"`
-	UserName string      `json:"user_name"`
-	Surname  string      `json:"surname"`
+	ID    pgtype.UUID `json:"id"`
+	Email string      `json:"email"`
 }
 
 func (q *Queries) CreatePerson(ctx context.Context, arg CreatePersonParams) (CreatePersonRow, error) {
@@ -84,7 +83,7 @@ func (q *Queries) CreatePerson(ctx context.Context, arg CreatePersonParams) (Cre
 		arg.Email,
 	)
 	var i CreatePersonRow
-	err := row.Scan(&i.ID, &i.UserName, &i.Surname)
+	err := row.Scan(&i.ID, &i.Email)
 	return i, err
 }
 
@@ -249,4 +248,41 @@ func (q *Queries) CreateUserSeatBooking(ctx context.Context, arg CreateUserSeatB
 	var i CreateUserSeatBookingRow
 	err := row.Scan(&i.ID, &i.ReservationDate)
 	return i, err
+}
+
+const insertRefreshToken = `-- name: InsertRefreshToken :exec
+INSERT INTO user_sessions(
+    user_id,
+    token_hash,
+    user_agent,
+    ip_address,
+    is_revoked,
+    expires_at,
+    created_at
+)VALUES(
+    $1, $2, $3, $4, $5, $6, $7
+)
+`
+
+type InsertRefreshTokenParams struct {
+	UserID    pgtype.UUID        `json:"user_id"`
+	TokenHash string             `json:"token_hash"`
+	UserAgent pgtype.Text        `json:"user_agent"`
+	IpAddress pgtype.Text        `json:"ip_address"`
+	IsRevoked bool               `json:"is_revoked"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+func (q *Queries) InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error {
+	_, err := q.db.Exec(ctx, insertRefreshToken,
+		arg.UserID,
+		arg.TokenHash,
+		arg.UserAgent,
+		arg.IpAddress,
+		arg.IsRevoked,
+		arg.ExpiresAt,
+		arg.CreatedAt,
+	)
+	return err
 }

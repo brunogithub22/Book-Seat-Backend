@@ -1,7 +1,9 @@
 package security
 
 import (
+	"net"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -59,4 +61,25 @@ func ClearAuthCookies(w http.ResponseWriter, secure bool) {
 		Secure:   secure,
 		SameSite: http.SameSiteLaxMode,
 	})
+}
+
+// GetClientIP extracts the real client IP, accounting for the nginx reverse proxy.
+func GetClientIP(r *http.Request) string {
+	// X-Real-IP is set explicitly by nginx to a single trusted value
+	if realIP := r.Header.Get("X-Real-IP"); realIP != "" {
+		return realIP
+	}
+
+	// Fallback: X-Forwarded-For may contain a chain "client, proxy1, proxy2"
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		parts := strings.Split(xff, ",")
+		return strings.TrimSpace(parts[0]) // first entry is the original client
+	}
+
+	// Last resort: direct connection, no proxy involved (e.g. local dev without nginx)
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return ip
 }
