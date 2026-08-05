@@ -3,22 +3,26 @@ package handler
 import (
 	"backend/internal/database/sqlc"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 
+	"backend/internal/security"
+
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // UserHandler holds dependencies needed by user endpoints.
 type UserHandler struct {
-	DB      *pgxpool.Pool
-	Queries *sqlc.Queries
+	DB          *pgxpool.Pool
+	Queries     *sqlc.Queries
+	ArgonHasher *security.ArgonHasher
 }
 
 // NewUserHandler is the constructor called by router.NewRouter.
-func NewUserHandler(pool *pgxpool.Pool) *UserHandler {
-	queries := sqlc.New(pool)
-	return &UserHandler{DB: pool, Queries: queries}
+func NewUserHandler(pool *pgxpool.Pool, queries *sqlc.Queries, argonHasher *security.ArgonHasher) *UserHandler {
+	return &UserHandler{DB: pool, Queries: queries, ArgonHasher: argonHasher}
 }
 
 type SignupPayload struct {
@@ -31,11 +35,6 @@ type SignupPayload struct {
 type SigninPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
-}
-
-type AuthResponse struct {
-	Token string   `json:"token"`
-	User  UserInfo `json:"user"`
 }
 
 type UserInfo struct {
@@ -63,20 +62,40 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slog.Info("user logged in", "email", payload.Email)
+	user, err := h.Queries.GetUserByEmail(r.Context(), payload.Email)
+	exists := errors.Is(err, pgx.ErrNoRows)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			slog.Info("No existing account found for", "email", payload.Email)
+		} else {
+			slog.Error("Something went wrong during the check of the account")
+		}
+	} else {
+		slog.Error("Account already exists for", "email", user.Email, "id", user.ID)
+		http.Error(w, `{"message":"account already exists"}`, http.StatusConflict)
+		return
+	}
 
-	// TODO: look up user, verify password hash (bcrypt.CompareHashAndPassword), issue token
+	if !exists {
+		hashedPassword, err := h.ArgonHasher.HashPassword(payload.Password)
+		if err != nil {
+			slog.Error("Failed to hash password", "error", err.Error())
+			http.Error(w, `{"message":"internal server error"}`, http.StatusInternalServerError)
+			return
+		}
+		slog.Info("Creating new account for", "email", payload.Email, "hashedPassword", hashedPassword)
+
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(AuthResponse{
-		Token: "generated-jwt-here",
-		User: UserInfo{
+	json.NewEncoder(w).Encode(
+		UserInfo{
 			ID:    "user-id",
 			Email: payload.Email,
 			Name:  "placeholder",
 		},
-	})
+	)
 }
 
 func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -104,12 +123,11 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(AuthResponse{
-		Token: "generated-jwt-here",
-		User: UserInfo{
+	json.NewEncoder(w).Encode(
+		UserInfo{
 			ID:    "user-id",
 			Email: payload.Email,
 			Name:  "placeholder",
 		},
-	})
+	)
 }

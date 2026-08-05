@@ -17,6 +17,17 @@ type Book struct {
 	BookDescription string      `json:"book_description"`
 }
 
+type OauthAccount struct {
+	ID             pgtype.UUID        `json:"id"`
+	UserID         pgtype.UUID        `json:"user_id"`
+	Provider       string             `json:"provider"`
+	ProviderUserID string             `json:"provider_user_id"`
+	AccessToken    pgtype.Text        `json:"access_token"`
+	RefreshToken   pgtype.Text        `json:"refresh_token"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+}
+
 type Organization struct {
 	ID               pgtype.UUID           `json:"id"`
 	NameOrganization string                `json:"name_organization"`
@@ -25,11 +36,12 @@ type Organization struct {
 }
 
 type Person struct {
-	ID       pgtype.UUID           `json:"id"`
-	UserName string                `json:"user_name"`
-	UserRole pqtype.NullRawMessage `json:"user_role"`
-	Surname  string                `json:"surname"`
-	Email    string                `json:"email"`
+	ID           pgtype.UUID           `json:"id"`
+	UserName     string                `json:"user_name"`
+	UserRole     pqtype.NullRawMessage `json:"user_role"`
+	Surname      string                `json:"surname"`
+	PasswordHash string                `json:"password_hash"`
+	Email        string                `json:"email"`
 }
 
 type Room struct {
@@ -71,4 +83,15 @@ type UserSeatBooking struct {
 	ReservationDate pgtype.Timestamp `json:"reservation_date"`
 	SeatID          pgtype.UUID      `json:"seat_id"`
 	UserID          pgtype.UUID      `json:"user_id"`
+}
+
+type UserSession struct {
+	ID        pgtype.UUID        `json:"id"`
+	UserID    pgtype.UUID        `json:"user_id"`
+	TokenHash string             `json:"token_hash"`
+	UserAgent pgtype.Text        `json:"user_agent"`
+	IpAddress pgtype.Text        `json:"ip_address"`
+	IsRevoked bool               `json:"is_revoked"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }

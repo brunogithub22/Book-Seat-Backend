@@ -166,3 +166,45 @@
 	
 2026-08-04 17:10:25.264 CEST [2154] LOG:  checkpoint starting: time
 2026-08-04 17:12:07.154 CEST [2154] LOG:  checkpoint complete: wrote 1010 buffers (6.2%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=101.634 s, sync=0.191 s, total=101.890 s; sync files=352, longest=0.004 s, average=0.001 s; distance=5005 kB, estimate=5005 kB; lsn=0/1C42C00, redo lsn=0/1C42B70
+2026-08-04 19:45:00.907 CEST [2150] LOG:  received smart shutdown request
+2026-08-05 12:03:32.666 CEST [39736] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-05 12:03:32.668 CEST [39736] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-05 12:03:32.672 CEST [39736] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-05 12:03:32.685 CEST [39742] LOG:  database system was interrupted; last known up at 2026-08-04 17:12:07 CEST
+2026-08-05 12:03:33.070 CEST [39742] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-08-05 12:03:33.079 CEST [39742] LOG:  redo starts at 0/1C42B70
+2026-08-05 12:03:33.079 CEST [39742] LOG:  invalid record length at 0/1C42CB0: expected at least 24, got 0
+2026-08-05 12:03:33.079 CEST [39742] LOG:  redo done at 0/1C42C78 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2026-08-05 12:03:33.089 CEST [39740] LOG:  checkpoint starting: end-of-recovery immediate wait
+2026-08-05 12:03:33.111 CEST [39740] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.007 s, sync=0.003 s, total=0.026 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=0 kB; lsn=0/1C42CB0, redo lsn=0/1C42CB0
+2026-08-05 12:03:33.118 CEST [39736] LOG:  database system is ready to accept connections
+2026-08-05 12:03:36.077 CEST [39789] ERROR:  syntax error at or near "16891" at character 234
+2026-08-05 12:03:36.077 CEST [39789] STATEMENT:  CREATE EVENT TRIGGER timescaledb_ddl_command_end ON ddl_command_end
+	         WHEN TAG IN ('ALTER TABLE', 'CREATE TRIGGER', 'CREATE TABLE', 'CREATE INDEX', 'ALTER INDEX', 'DROP TABLE', 'DROP INDEX', 'DROP SCHEMA')
+	   EXECUTE FUNCTION 16891();
+	
+	
+	
+2026-08-05 12:03:36.078 CEST [39789] ERROR:  event trigger "timescaledb_ddl_command_end" does not exist
+2026-08-05 12:03:36.078 CEST [39789] STATEMENT:  ALTER EVENT TRIGGER timescaledb_ddl_command_end OWNER TO bruno;
+	
+	
+2026-08-05 12:03:36.078 CEST [39789] ERROR:  syntax error at or near "16891" at character 79
+2026-08-05 12:03:36.078 CEST [39789] STATEMENT:  CREATE EVENT TRIGGER timescaledb_ddl_sql_drop ON sql_drop
+	   EXECUTE FUNCTION 16891();
+	
+	
+	
+2026-08-05 12:03:36.079 CEST [39789] ERROR:  event trigger "timescaledb_ddl_sql_drop" does not exist
+2026-08-05 12:03:36.079 CEST [39789] STATEMENT:  ALTER EVENT TRIGGER timescaledb_ddl_sql_drop OWNER TO bruno;
+	
+	
+2026-08-05 12:08:33.213 CEST [39740] LOG:  checkpoint starting: time
+2026-08-05 12:08:53.039 CEST [39740] LOG:  checkpoint complete: wrote 196 buffers (1.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=19.711 s, sync=0.088 s, total=19.826 s; sync files=143, longest=0.009 s, average=0.001 s; distance=1761 kB, estimate=1761 kB; lsn=0/1DFB168, redo lsn=0/1DFB0D8
+2026-08-05 12:45:03.218 CEST [39736] LOG:  received fast shutdown request
+2026-08-05 12:45:03.224 CEST [39736] LOG:  aborting any active transactions
+2026-08-05 12:45:03.230 CEST [39736] LOG:  background worker "logical replication launcher" (PID 39745) exited with exit code 1
+2026-08-05 12:45:03.232 CEST [39740] LOG:  shutting down
+2026-08-05 12:45:03.239 CEST [39740] LOG:  checkpoint starting: shutdown immediate
+2026-08-05 12:45:03.269 CEST [39740] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.037 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=1584 kB; lsn=0/1DFB218, redo lsn=0/1DFB218
+2026-08-05 12:45:03.299 CEST [39736] LOG:  database system is shut down

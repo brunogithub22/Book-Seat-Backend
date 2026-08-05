@@ -20,6 +20,7 @@ type Querier interface {
 	CreateUserRoomBooking(ctx context.Context, arg CreateUserRoomBookingParams) (CreateUserRoomBookingRow, error)
 	CreateUserSeatBooking(ctx context.Context, arg CreateUserSeatBookingParams) (CreateUserSeatBookingRow, error)
 	GetAllFromBooks(ctx context.Context) ([]Book, error)
+	GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

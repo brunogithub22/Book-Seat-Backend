@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"backend/internal/database"
+	"backend/internal/database/sqlc"
 	"backend/internal/router"
 )
 
@@ -24,12 +25,15 @@ func main() {
 	// 1. Initialize DB with context timeout
 	dbpool, err := database.InitDB(ctx)
 	if err != nil {
-		slog.Error("Failed to initialize database: %v", err)
+		slog.Error("Failed to initialize database:", "error", err.Error())
+		os.Exit(1)
 	}
 	defer dbpool.Close()
 
+	queries := sqlc.New(dbpool)
+
 	// 2. Initialize Router
-	appRouter := router.NewRouter(dbpool)
+	appRouter := router.NewRouter(dbpool, queries)
 
 	// 3. Configure HTTP Server with explicit security timeouts
 	srv := &http.Server{
@@ -44,7 +48,7 @@ func main() {
 
 	slog.Info("Server running on http://localhost:8080")
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		slog.Error("Server error: %v", err)
+		slog.Error("Server error:", "error", err.Error())
 	}
 
 	slog.Info("Server exited cleanly.")
@@ -63,6 +67,6 @@ func shutdown(srv *http.Server) {
 	defer shutdownCancel()
 
 	if err := srv.Shutdown(shutdownCtx); err != nil {
-		slog.Error("Server forced to shutdown: %v", err)
+		slog.Error("Server forced to shutdown:", "error", err.Error())
 	}
 }

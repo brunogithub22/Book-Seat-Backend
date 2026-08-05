@@ -5,6 +5,7 @@ CREATE TABLE person (
     user_name VARCHAR(255) NOT NULL,
     user_role JSONB NOT NULL DEFAULT '{}'::jsonb,
     surname VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     email TEXT NOT NULL
 );
 

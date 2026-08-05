@@ -5,18 +5,20 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"backend/internal/database/sqlc"
 	"backend/internal/handler"
 	"backend/internal/middleware"
+	"backend/internal/security"
 )
 
 // NewRouter constructs and returns the primary application HTTP handler.
 // It receives the database pool initialized in main.go and injects it into handlers.
-func NewRouter(db *pgxpool.Pool) http.Handler {
+func NewRouter(db *pgxpool.Pool, queries *sqlc.Queries) http.Handler {
 	// 1. Create a new Go standard library multiplexer
 	mux := http.NewServeMux()
 
 	// 2. Initialize handlers with dependencies
-	userHandler := handler.NewUserHandler(db)
+	userHandler := handler.NewUserHandler(db, queries, security.NewArgonHasher(nil))
 	//authHandler := handler.NewAuthHandler(db)
 
 	// -----------------------------------------------------------------
