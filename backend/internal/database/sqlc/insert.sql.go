@@ -53,18 +53,20 @@ INSERT INTO person (
     user_role,
     user_name,
     surname,
+    password_hash,
     email
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3, $4, $5
 )
 RETURNING id,user_name,surname
 `
 
 type CreatePersonParams struct {
-	UserRole pqtype.NullRawMessage `json:"user_role"`
-	UserName string                `json:"user_name"`
-	Surname  string                `json:"surname"`
-	Email    string                `json:"email"`
+	UserRole     pqtype.NullRawMessage `json:"user_role"`
+	UserName     string                `json:"user_name"`
+	Surname      string                `json:"surname"`
+	PasswordHash string                `json:"password_hash"`
+	Email        string                `json:"email"`
 }
 
 type CreatePersonRow struct {
@@ -78,6 +80,7 @@ func (q *Queries) CreatePerson(ctx context.Context, arg CreatePersonParams) (Cre
 		arg.UserRole,
 		arg.UserName,
 		arg.Surname,
+		arg.PasswordHash,
 		arg.Email,
 	)
 	var i CreatePersonRow

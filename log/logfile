@@ -208,3 +208,53 @@
 2026-08-05 12:45:03.239 CEST [39740] LOG:  checkpoint starting: shutdown immediate
 2026-08-05 12:45:03.269 CEST [39740] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.037 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=1584 kB; lsn=0/1DFB218, redo lsn=0/1DFB218
 2026-08-05 12:45:03.299 CEST [39736] LOG:  database system is shut down
+2026-08-05 16:34:12.638 CEST [7361] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-05 16:34:12.639 CEST [7361] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-05 16:34:12.641 CEST [7361] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-05 16:34:12.649 CEST [7367] LOG:  database system was shut down at 2026-08-05 12:45:03 CEST
+2026-08-05 16:34:12.664 CEST [7367] LOG:  WAL file is from different database system: WAL file database system identifier is 7670127904412344590, pg_control database system identifier is 7670192783477119040
+2026-08-05 16:34:12.664 CEST [7367] LOG:  invalid checkpoint record
+2026-08-05 16:34:12.664 CEST [7367] PANIC:  could not locate a valid checkpoint record at 0/1DFB218
+2026-08-05 16:34:12.672 CEST [7361] LOG:  startup process (PID 7367) was terminated by signal 6: Aborted
+2026-08-05 16:34:12.672 CEST [7361] LOG:  terminating any other active server processes
+2026-08-05 16:34:12.673 CEST [7361] LOG:  shutting down due to startup process failure
+2026-08-05 16:34:12.675 CEST [7361] LOG:  database system is shut down
+2026-08-05 16:34:40.954 CEST [8032] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-05 16:34:40.954 CEST [8032] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-05 16:34:40.958 CEST [8032] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-05 16:34:40.968 CEST [8038] LOG:  database system was shut down at 2026-08-05 12:45:03 CEST
+2026-08-05 16:34:40.968 CEST [8038] LOG:  WAL file is from different database system: WAL file database system identifier is 7670127904412344590, pg_control database system identifier is 7670192783477119040
+2026-08-05 16:34:40.968 CEST [8038] LOG:  invalid checkpoint record
+2026-08-05 16:34:40.968 CEST [8038] PANIC:  could not locate a valid checkpoint record at 0/1DFB218
+2026-08-05 16:34:40.980 CEST [8032] LOG:  startup process (PID 8038) was terminated by signal 6: Aborted
+2026-08-05 16:34:40.980 CEST [8032] LOG:  terminating any other active server processes
+2026-08-05 16:34:40.982 CEST [8032] LOG:  shutting down due to startup process failure
+2026-08-05 16:34:40.984 CEST [8032] LOG:  database system is shut down
+2026-08-05 16:36:05.755 CEST [8429] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-05 16:36:05.755 CEST [8429] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-05 16:36:05.757 CEST [8429] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-05 16:36:05.764 CEST [8435] LOG:  database system was shut down at 2026-08-05 16:36:05 CEST
+2026-08-05 16:36:05.769 CEST [8429] LOG:  database system is ready to accept connections
+2026-08-05 16:36:08.382 CEST [8469] ERROR:  syntax error at or near "16891" at character 234
+2026-08-05 16:36:08.382 CEST [8469] STATEMENT:  CREATE EVENT TRIGGER timescaledb_ddl_command_end ON ddl_command_end
+	         WHEN TAG IN ('ALTER TABLE', 'CREATE TRIGGER', 'CREATE TABLE', 'CREATE INDEX', 'ALTER INDEX', 'DROP TABLE', 'DROP INDEX', 'DROP SCHEMA')
+	   EXECUTE FUNCTION 16891();
+	
+	
+	
+2026-08-05 16:36:08.382 CEST [8469] ERROR:  event trigger "timescaledb_ddl_command_end" does not exist
+2026-08-05 16:36:08.382 CEST [8469] STATEMENT:  ALTER EVENT TRIGGER timescaledb_ddl_command_end OWNER TO bruno;
+	
+	
+2026-08-05 16:36:08.382 CEST [8469] ERROR:  syntax error at or near "16891" at character 79
+2026-08-05 16:36:08.382 CEST [8469] STATEMENT:  CREATE EVENT TRIGGER timescaledb_ddl_sql_drop ON sql_drop
+	   EXECUTE FUNCTION 16891();
+	
+	
+	
+2026-08-05 16:36:08.382 CEST [8469] ERROR:  event trigger "timescaledb_ddl_sql_drop" does not exist
+2026-08-05 16:36:08.382 CEST [8469] STATEMENT:  ALTER EVENT TRIGGER timescaledb_ddl_sql_drop OWNER TO bruno;
+	
+	
+2026-08-05 16:41:05.856 CEST [8433] LOG:  checkpoint starting: time
+2026-08-05 16:42:48.926 CEST [8433] LOG:  checkpoint complete: wrote 1025 buffers (6.3%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=102.942 s, sync=0.082 s, total=103.072 s; sync files=396, longest=0.007 s, average=0.001 s; distance=5421 kB, estimate=5421 kB; lsn=0/1CAAD80, redo lsn=0/1CAACF0

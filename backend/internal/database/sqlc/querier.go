@@ -19,6 +19,7 @@ type Querier interface {
 	CreateUserBookManage(ctx context.Context, arg CreateUserBookManageParams) (pgtype.UUID, error)
 	CreateUserRoomBooking(ctx context.Context, arg CreateUserRoomBookingParams) (CreateUserRoomBookingRow, error)
 	CreateUserSeatBooking(ctx context.Context, arg CreateUserSeatBookingParams) (CreateUserSeatBookingRow, error)
+	DeleteUser(ctx context.Context, arg DeleteUserParams) error
 	GetAllFromBooks(ctx context.Context) ([]Book, error)
 	GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error)
 }
