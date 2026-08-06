@@ -34,12 +34,9 @@ func GetRefreshToken(t *security.TokenService, r *http.Request, user_id pgtype.U
 		}
 		return "", err
 	}
-
 	if cookie.Value == "" {
 		return "", err
 	}
-
 	hash := security.HashToken(cookie.Value)
-
 	return hash, err
 }

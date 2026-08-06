@@ -7,7 +7,6 @@ import (
 
 	"backend/internal/database/sqlc"
 	"backend/internal/handler"
-	"backend/internal/middleware"
 	"backend/internal/security"
 )
 
@@ -43,8 +42,6 @@ func NewRouter(db *pgxpool.Pool, queries *sqlc.Queries) http.Handler {
 	// -----------------------------------------------------------------
 	// Apply global middleware like logging and recovery across ALL routes
 	var appHandler http.Handler = mux
-	appHandler = middleware.Logger(appHandler)
-	appHandler = middleware.Recoverer(appHandler)
 
 	return appHandler
 }

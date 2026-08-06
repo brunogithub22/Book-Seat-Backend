@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -82,4 +83,19 @@ func GenerateRefreshToken() (raw string, hash string, err error) {
 func HashToken(raw string) string {
 	hashed := sha256.Sum256([]byte(raw))
 	return hex.EncodeToString(hashed[:])
+}
+
+// getTokenFromCookie legge il valore del cookie "access_token" dalla request
+func getTokenFromCookie(r *http.Request) (string, error) {
+	cookie, err := r.Cookie("access_token")
+	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			return "", errors.New("no access_token cookie found")
+		}
+		return "", err
+	}
+	if cookie.Value == "" {
+		return "", errors.New("access_token cookie is empty")
+	}
+	return cookie.Value, nil
 }

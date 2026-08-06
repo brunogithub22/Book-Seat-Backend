@@ -10,16 +10,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
-
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/sqlc-dev/pqtype"
-
 	"backend/internal/security"
 	"backend/internal/service"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
+	"github.com/sqlc-dev/pqtype"
 )
 
 // UserHandler holds dependencies needed by user endpoints.
