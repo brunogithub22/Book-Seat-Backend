@@ -42,6 +42,7 @@ type Person struct {
 	Surname      string                `json:"surname"`
 	PasswordHash string                `json:"password_hash"`
 	Email        string                `json:"email"`
+	Remember     bool                  `json:"remember"`
 }
 
 type Room struct {

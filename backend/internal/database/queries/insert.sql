@@ -4,9 +4,10 @@ INSERT INTO person (
     user_name,
     surname,
     password_hash,
-    email
+    email,
+    remember
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6
 )
 RETURNING id,email; 
 

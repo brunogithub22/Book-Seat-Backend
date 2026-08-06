@@ -89,7 +89,7 @@ func (a *ArgonHasher) HashPassword(password string) (string, error) {
 
 // VerifyPassword checks if a plain-text password matches an encoded hash.
 // It extracts the original salt and parameters encoded within the string to ensure valid comparison.
-func (a *ArgonHasher) VerifyPassword(password, encodedHash string) (bool, error) {
+func (a *ArgonHasher) VerifyPassword(password string, encodedHash string) (bool, error) {
 	if len(password) > 4096 {
 		return false, ErrPasswordTooLong
 	}

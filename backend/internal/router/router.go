@@ -26,6 +26,8 @@ func NewRouter(db *pgxpool.Pool, queries *sqlc.Queries) http.Handler {
 	// -----------------------------------------------------------------
 	mux.HandleFunc("POST /api/auth/signup", authHandler.SignUp)
 	mux.HandleFunc("POST /api/auth/signin", authHandler.SignIn)
+	mux.HandleFunc("POST /api/auth/me", authHandler.AuthMe)
+	mux.HandleFunc("POST /api/auth/refresh", authHandler.Refresh)
 
 	// OAuth 2.0 Auth Flow
 	//mux.HandleFunc("GET /auth/google/login", authHandler.HandleGoogleLogin)

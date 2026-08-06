@@ -357,3 +357,29 @@
 2026-08-05 21:25:21.124 CEST [18626] LOG:  inizio checkpoint: shutdown immediate
 2026-08-05 21:25:21.515 CEST [18626] LOG:  checkpoint complete: wrote 26 buffers (0.2%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.068 s, sync=0.173 s, total=0.433 s; sync files=10, longest=0.145 s, average=0.018 s; distance=169 kB, estimate=169 kB; lsn=0/1D60188, redo lsn=0/1D60188
 2026-08-05 21:25:21.607 CEST [18622] LOG:  il database è stato arrestato
+2026-08-06 10:18:59.104 CEST [12973] LOG:  a partire da PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-06 10:18:59.129 CEST [12973] LOG:  in ascolto sull'indirizzo IPv6 "::1", porta 5433
+2026-08-06 10:18:59.129 CEST [12973] LOG:  in ascolto sull'indirizzo IPv4 "127.0.0.1", porta 5433
+2026-08-06 10:18:59.183 CEST [12973] LOG:  in ascolto sul socket Unix "/tmp/.s.PGSQL.5433"
+2026-08-06 10:18:59.297 CEST [12979] LOG:  il database è stato arrestato alle 2026-08-05 21:25:21 CEST
+2026-08-06 10:18:59.408 CEST [12973] LOG:  il database è pronto ad accettare connessioni
+2026-08-06 10:19:38.570 CEST [13150] FATALE:  il file di lock "postmaster.pid" esiste già
+2026-08-06 10:19:38.570 CEST [13150] SUGGERIMENTO:  C'è un altro postmaster (PID 12973) in esecuzione nella directory dei dati "/home/bruno/Code/Book-Seat/Book-Seat-Backend/data/db"?
+2026-08-06 10:20:30.968 CEST [13468] LOG:  ricezione dati dal client fallita: Connessione interrotta dal corrispondente
+2026-08-06 10:22:24.427 CEST [13542] ERRORE:  errore di sintassi a o presso "Select" al carattere 46
+2026-08-06 10:22:24.427 CEST [13542] ISTRUZIONE:  Delete From person where user_name = 'Bruno'
+	Select * From person
+	Delete From person where user_name = 'Bruno';
+2026-08-06 10:23:14.185 CEST [13542] ERRORE:  la relazione "user_session" non esiste al carattere 15
+2026-08-06 10:23:14.185 CEST [13542] ISTRUZIONE:  Select * From user_session;
+2026-08-06 10:23:59.395 CEST [12977] LOG:  inizio checkpoint: time
+2026-08-06 10:24:14.526 CEST [12977] LOG:  checkpoint complete: wrote 145 buffers (0.9%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=14.601 s, sync=0.363 s, total=15.132 s; sync files=95, longest=0.102 s, average=0.004 s; distance=1095 kB, estimate=1095 kB; lsn=0/1E71F68, redo lsn=0/1E71ED8
+2026-08-06 10:28:59.579 CEST [12977] LOG:  inizio checkpoint: time
+2026-08-06 10:29:00.485 CEST [12977] LOG:  checkpoint complete: wrote 6 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.626 s, sync=0.110 s, total=0.907 s; sync files=7, longest=0.087 s, average=0.016 s; distance=2 kB, estimate=986 kB; lsn=0/1E72A28, redo lsn=0/1E729D0
+2026-08-06 11:14:00.331 CEST [12977] LOG:  inizio checkpoint: time
+2026-08-06 11:14:00.896 CEST [12977] LOG:  checkpoint complete: wrote 2 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.237 s, sync=0.091 s, total=0.565 s; sync files=3, longest=0.075 s, average=0.031 s; distance=1 kB, estimate=887 kB; lsn=0/1E73050, redo lsn=0/1E72FF8
+2026-08-06 11:14:41.584 CEST [17628] LOG:  ricezione dati dal client fallita: Connessione interrotta dal corrispondente
+2026-08-06 11:19:00.995 CEST [12977] LOG:  inizio checkpoint: time
+2026-08-06 11:19:02.062 CEST [12977] LOG:  checkpoint complete: wrote 6 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.625 s, sync=0.232 s, total=1.067 s; sync files=7, longest=0.175 s, average=0.034 s; distance=3 kB, estimate=799 kB; lsn=0/1E73D28, redo lsn=0/1E73CD0
+2026-08-06 11:29:00.259 CEST [12977] LOG:  inizio checkpoint: time
+2026-08-06 11:29:14.882 CEST [12977] LOG:  checkpoint complete: wrote 142 buffers (0.9%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=14.288 s, sync=0.136 s, total=14.624 s; sync files=94, longest=0.069 s, average=0.002 s; distance=1022 kB, estimate=1022 kB; lsn=0/1F73940, redo lsn=0/1F738B0

@@ -54,9 +54,10 @@ INSERT INTO person (
     user_name,
     surname,
     password_hash,
-    email
+    email,
+    remember
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6
 )
 RETURNING id,email
 `
@@ -67,6 +68,7 @@ type CreatePersonParams struct {
 	Surname      string                `json:"surname"`
 	PasswordHash string                `json:"password_hash"`
 	Email        string                `json:"email"`
+	Remember     bool                  `json:"remember"`
 }
 
 type CreatePersonRow struct {
@@ -81,6 +83,7 @@ func (q *Queries) CreatePerson(ctx context.Context, arg CreatePersonParams) (Cre
 		arg.Surname,
 		arg.PasswordHash,
 		arg.Email,
+		arg.Remember,
 	)
 	var i CreatePersonRow
 	err := row.Scan(&i.ID, &i.Email)

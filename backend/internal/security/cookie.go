@@ -38,6 +38,18 @@ func SetAuthCookies(w http.ResponseWriter, accessToken, refreshToken string) {
 	})
 }
 
+func SetAuthAccessToken(w http.ResponseWriter, accessToken string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     AccessTokenCookieName,
+		Value:    accessToken,
+		Path:     "/",
+		Expires:  time.Now().Add(AccessTokenTTL),
+		HttpOnly: true,
+		Secure:   true, // true in production (HTTPS), false only for local http dev
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
 // ClearAuthCookies expires both cookies immediately — used on logout.
 func ClearAuthCookies(w http.ResponseWriter, secure bool) {
 	http.SetCookie(w, &http.Cookie{

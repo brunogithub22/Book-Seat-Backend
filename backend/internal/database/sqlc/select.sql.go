@@ -41,6 +41,29 @@ func (q *Queries) GetAllFromBooks(ctx context.Context) ([]Book, error) {
 	return items, nil
 }
 
+const getRefreshToken = `-- name: GetRefreshToken :one
+Select id,token_hash
+From user_sessions 
+Where user_id = $1 AND is_revoked = $2
+`
+
+type GetRefreshTokenParams struct {
+	UserID    pgtype.UUID `json:"user_id"`
+	IsRevoked bool        `json:"is_revoked"`
+}
+
+type GetRefreshTokenRow struct {
+	ID        pgtype.UUID `json:"id"`
+	TokenHash string      `json:"token_hash"`
+}
+
+func (q *Queries) GetRefreshToken(ctx context.Context, arg GetRefreshTokenParams) (GetRefreshTokenRow, error) {
+	row := q.db.QueryRow(ctx, getRefreshToken, arg.UserID, arg.IsRevoked)
+	var i GetRefreshTokenRow
+	err := row.Scan(&i.ID, &i.TokenHash)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, email, password_hash
 FROM person

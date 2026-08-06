@@ -6,7 +6,8 @@ CREATE TABLE person (
     user_role JSONB NOT NULL DEFAULT '{}'::jsonb,
     surname VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    email TEXT NOT NULL
+    email TEXT NOT NULL,
+    remember BOOLEAN NOT NULL
 );
 
 CREATE TABLE book (

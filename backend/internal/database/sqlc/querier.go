@@ -21,8 +21,10 @@ type Querier interface {
 	CreateUserSeatBooking(ctx context.Context, arg CreateUserSeatBookingParams) (CreateUserSeatBookingRow, error)
 	DeleteUser(ctx context.Context, arg DeleteUserParams) error
 	GetAllFromBooks(ctx context.Context) ([]Book, error)
+	GetRefreshToken(ctx context.Context, arg GetRefreshTokenParams) (GetRefreshTokenRow, error)
 	GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error)
 	InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error
+	UpdateRemember(ctx context.Context, arg UpdateRememberParams) error
 }
 
 var _ Querier = (*Queries)(nil)
