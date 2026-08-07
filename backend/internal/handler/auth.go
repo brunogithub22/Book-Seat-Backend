@@ -188,6 +188,8 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	slog.Info("New user created", "email", newUser.Email, "id", newUser.ID)
 
+	// 2. 🔍 CHECK IF COOKIES ARE INSERTED IN RESPONSE HEADERS
+	slog.Info("Response Set-Cookie Headers", "cookies", w.Header()["Set-Cookie"])
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
@@ -328,6 +330,8 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		addRefreshToken()
 	}
 
+	// 2. 🔍 CHECK IF COOKIES ARE INSERTED IN RESPONSE HEADERS
+	slog.Info("Response Set-Cookie Headers", "cookies", w.Header()["Set-Cookie"])
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
@@ -340,6 +344,9 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) AuthMe(w http.ResponseWriter, r *http.Request) {
+
+	// Print raw Cookie header received by Go
+	slog.Info("Raw Cookie Header Received", "cookie_header", r.Header.Get("Cookie"))
 
 	if err := godotenv.Load(); err != nil {
 		log.Println("no .env file found, using system env vars")
@@ -355,7 +362,7 @@ func (h *AuthHandler) AuthMe(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		slog.Error("failed to get access token", "error", err)
-		http.Error(w, "internal error", http.StatusUnauthorized)
+		http.Error(w, "internal error no access token found", http.StatusUnauthorized)
 		return
 	}
 

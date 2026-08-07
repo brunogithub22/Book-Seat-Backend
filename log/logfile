@@ -28,3 +28,49 @@
 2026-08-07 11:37:47.702 CEST [59187] LOG:  could not receive data from client: Connection reset by peer
 2026-08-07 12:52:09.681 CEST [2183] LOG:  checkpoint starting: time
 2026-08-07 12:52:09.835 CEST [2183] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.126 s, sync=0.002 s, total=0.164 s; sync files=1, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=949 kB; lsn=0/1E1C4E8, redo lsn=0/1E1C490
+2026-08-07 17:27:28.994 CEST [2186] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-07 17:27:28.994 CEST [2186] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-07 17:27:28.997 CEST [2186] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-07 17:27:29.011 CEST [2192] LOG:  database system was interrupted; last known up at 2026-08-07 12:52:09 CEST
+2026-08-07 17:27:29.478 CEST [2192] LOG:  WAL file is from different database system: WAL file database system identifier is 7670943002519704618, pg_control database system identifier is 7670989161033234792
+2026-08-07 17:27:29.478 CEST [2192] LOG:  invalid checkpoint record
+2026-08-07 17:27:29.478 CEST [2192] PANIC:  could not locate a valid checkpoint record at 0/1E1C4E8
+2026-08-07 17:27:29.497 CEST [2186] LOG:  startup process (PID 2192) was terminated by signal 6: Aborted
+2026-08-07 17:27:29.497 CEST [2186] LOG:  terminating any other active server processes
+2026-08-07 17:27:29.500 CEST [2186] LOG:  shutting down due to startup process failure
+2026-08-07 17:27:29.504 CEST [2186] LOG:  database system is shut down
+2026-08-07 17:27:44.319 CEST [2322] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-07 17:27:44.319 CEST [2322] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-07 17:27:44.323 CEST [2322] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-07 17:27:44.335 CEST [2328] LOG:  database system was shut down at 2026-08-07 17:27:43 CEST
+2026-08-07 17:27:44.345 CEST [2322] LOG:  database system is ready to accept connections
+2026-08-07 17:32:44.435 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 17:34:27.930 CEST [2326] LOG:  checkpoint complete: wrote 1027 buffers (6.3%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=103.258 s, sync=0.175 s, total=103.497 s; sync files=396, longest=0.017 s, average=0.001 s; distance=5425 kB, estimate=5425 kB; lsn=0/1CABB30, redo lsn=0/1CABAA0
+2026-08-07 21:29:23.812 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 21:29:24.476 CEST [2326] LOG:  checkpoint complete: wrote 6 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.622 s, sync=0.011 s, total=0.665 s; sync files=7, longest=0.007 s, average=0.002 s; distance=3 kB, estimate=4883 kB; lsn=0/1CAC780, redo lsn=0/1CAC6F0
+2026-08-07 21:34:23.576 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 21:34:23.703 CEST [2326] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.103 s, sync=0.006 s, total=0.128 s; sync files=1, longest=0.006 s, average=0.006 s; distance=0 kB, estimate=4394 kB; lsn=0/1CACAF8, redo lsn=0/1CACAA0
+2026-08-07 21:44:23.905 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 21:44:24.549 CEST [2326] LOG:  checkpoint complete: wrote 6 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.611 s, sync=0.013 s, total=0.645 s; sync files=7, longest=0.008 s, average=0.002 s; distance=3 kB, estimate=3955 kB; lsn=0/1CAD8D8, redo lsn=0/1CAD880
+2026-08-07 21:46:59.772 CEST [4246] ERROR:  syntax error at or near "*" at character 8
+2026-08-07 21:46:59.772 CEST [4246] STATEMENT:  Delete * From person;
+2026-08-07 21:49:23.593 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 21:49:23.830 CEST [2326] LOG:  checkpoint complete: wrote 2 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.207 s, sync=0.010 s, total=0.238 s; sync files=3, longest=0.008 s, average=0.004 s; distance=2 kB, estimate=3560 kB; lsn=0/1CAE2E0, redo lsn=0/1CAE288
+2026-08-07 21:54:23.931 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 21:54:24.572 CEST [2326] LOG:  checkpoint complete: wrote 6 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.607 s, sync=0.011 s, total=0.642 s; sync files=7, longest=0.007 s, average=0.002 s; distance=4 kB, estimate=3204 kB; lsn=0/1CAF370, redo lsn=0/1CAF318
+2026-08-07 22:04:23.738 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 22:04:24.284 CEST [2326] LOG:  checkpoint complete: wrote 5 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.507 s, sync=0.012 s, total=0.546 s; sync files=6, longest=0.008 s, average=0.002 s; distance=4 kB, estimate=2884 kB; lsn=0/1CB04C8, redo lsn=0/1CB0470
+2026-08-07 22:19:23.508 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 22:19:24.152 CEST [2326] LOG:  checkpoint complete: wrote 6 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.609 s, sync=0.011 s, total=0.645 s; sync files=7, longest=0.007 s, average=0.002 s; distance=5 kB, estimate=2596 kB; lsn=0/1CB1BA8, redo lsn=0/1CB1B50
+2026-08-07 22:29:23.266 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 22:29:23.820 CEST [2326] LOG:  checkpoint complete: wrote 5 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.508 s, sync=0.011 s, total=0.554 s; sync files=6, longest=0.008 s, average=0.002 s; distance=5 kB, estimate=2337 kB; lsn=0/1CB31D8, redo lsn=0/1CB3180
+2026-08-07 22:39:24.021 CEST [2326] LOG:  checkpoint starting: time
+2026-08-07 22:39:24.568 CEST [2326] LOG:  checkpoint complete: wrote 5 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.510 s, sync=0.012 s, total=0.548 s; sync files=6, longest=0.008 s, average=0.002 s; distance=6 kB, estimate=2104 kB; lsn=0/1CB4A88, redo lsn=0/1CB4A30
+2026-08-07 22:56:47.017 CEST [2322] LOG:  received fast shutdown request
+2026-08-07 22:56:47.061 CEST [2322] LOG:  aborting any active transactions
+2026-08-07 22:56:47.069 CEST [4246] FATAL:  terminating connection due to administrator command
+2026-08-07 22:56:47.075 CEST [2322] LOG:  background worker "logical replication launcher" (PID 2331) exited with exit code 1
+2026-08-07 22:56:47.083 CEST [2326] LOG:  shutting down
+2026-08-07 22:56:47.087 CEST [2326] LOG:  checkpoint starting: shutdown immediate
+2026-08-07 22:56:47.110 CEST [2326] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.027 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=1894 kB; lsn=0/1CB4B38, redo lsn=0/1CB4B38
+2026-08-07 22:56:47.152 CEST [2322] LOG:  database system is shut down
