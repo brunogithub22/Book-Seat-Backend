@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -25,7 +26,7 @@ func VerifyPassword(argonHasher *security.ArgonHasher, payload_pwd string, db_pw
 	return equal, err
 }
 
-func GetRefreshToken(t *security.TokenService, r *http.Request, user_id pgtype.UUID) (string, error) {
+func GetRefreshToken(t *security.TokenService, r *http.Request) (string, error) {
 	cookie, err := r.Cookie("refresh_token")
 	if err != nil {
 		// http.ErrNoCookie is the expected "not present" case — not an error worth logging
@@ -39,4 +40,27 @@ func GetRefreshToken(t *security.TokenService, r *http.Request, user_id pgtype.U
 	}
 	hash := security.HashToken(cookie.Value)
 	return hash, err
+}
+
+func GetAccessToken(t *security.TokenService, r *http.Request) (string, error) {
+	cookie, err := r.Cookie("access_token")
+	if err != nil {
+		// http.ErrNoCookie is the expected "not present" case — not an error worth logging
+		if !errors.Is(err, http.ErrNoCookie) {
+			slog.Warn("unexpected error reading access_token cookie", "error", err)
+		}
+		return "", err
+	}
+	if cookie.Value == "" {
+		return "", err
+	}
+	return cookie.Value, err
+}
+
+func ToPgUUID(id string) (pgtype.UUID, error) {
+	parsed, err := uuid.Parse(id)
+	if err != nil {
+		return pgtype.UUID{}, err
+	}
+	return pgtype.UUID{Bytes: parsed, Valid: true}, nil
 }

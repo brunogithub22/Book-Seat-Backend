@@ -22,7 +22,9 @@ type Querier interface {
 	DeleteUser(ctx context.Context, arg DeleteUserParams) error
 	GetAllFromBooks(ctx context.Context) ([]Book, error)
 	GetRefreshToken(ctx context.Context, arg GetRefreshTokenParams) (GetRefreshTokenRow, error)
+	GetRefreshTokenByHash(ctx context.Context, arg GetRefreshTokenByHashParams) (GetRefreshTokenByHashRow, error)
 	GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error)
+	GetUserbyId(ctx context.Context, id pgtype.UUID) (GetUserbyIdRow, error)
 	InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error
 	UpdateRemember(ctx context.Context, arg UpdateRememberParams) error
 }

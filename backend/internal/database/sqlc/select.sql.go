@@ -64,6 +64,40 @@ func (q *Queries) GetRefreshToken(ctx context.Context, arg GetRefreshTokenParams
 	return i, err
 }
 
+const getRefreshTokenByHash = `-- name: GetRefreshTokenByHash :one
+Select u_s.id,u_s.token_hash,p.id,p.user_name,p.surname,p.email
+From user_sessions as u_s,person as p
+Where u_s.user_id = p.id AND u_s.token_hash = $1 AND u_s.is_revoked = $2
+`
+
+type GetRefreshTokenByHashParams struct {
+	TokenHash string `json:"token_hash"`
+	IsRevoked bool   `json:"is_revoked"`
+}
+
+type GetRefreshTokenByHashRow struct {
+	ID        pgtype.UUID `json:"id"`
+	TokenHash string      `json:"token_hash"`
+	ID_2      pgtype.UUID `json:"id_2"`
+	UserName  string      `json:"user_name"`
+	Surname   string      `json:"surname"`
+	Email     string      `json:"email"`
+}
+
+func (q *Queries) GetRefreshTokenByHash(ctx context.Context, arg GetRefreshTokenByHashParams) (GetRefreshTokenByHashRow, error) {
+	row := q.db.QueryRow(ctx, getRefreshTokenByHash, arg.TokenHash, arg.IsRevoked)
+	var i GetRefreshTokenByHashRow
+	err := row.Scan(
+		&i.ID,
+		&i.TokenHash,
+		&i.ID_2,
+		&i.UserName,
+		&i.Surname,
+		&i.Email,
+	)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, email, password_hash
 FROM person
@@ -80,5 +114,23 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i GetUserByEmailRow
 	err := row.Scan(&i.ID, &i.Email, &i.PasswordHash)
+	return i, err
+}
+
+const getUserbyId = `-- name: GetUserbyId :one
+Select user_name,surname 
+From person 
+Where id = $1
+`
+
+type GetUserbyIdRow struct {
+	UserName string `json:"user_name"`
+	Surname  string `json:"surname"`
+}
+
+func (q *Queries) GetUserbyId(ctx context.Context, id pgtype.UUID) (GetUserbyIdRow, error) {
+	row := q.db.QueryRow(ctx, getUserbyId, id)
+	var i GetUserbyIdRow
+	err := row.Scan(&i.UserName, &i.Surname)
 	return i, err
 }

@@ -1,0 +1,30 @@
+2026-08-06 20:35:44.810 CEST [2434] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-06 20:35:44.811 CEST [2434] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-06 20:35:44.813 CEST [2434] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-06 20:35:44.822 CEST [2440] LOG:  database system was shut down at 2026-08-06 20:35:44 CEST
+2026-08-06 20:35:44.826 CEST [2434] LOG:  database system is ready to accept connections
+2026-08-06 20:40:44.921 CEST [2438] LOG:  checkpoint starting: time
+2026-08-06 20:42:27.703 CEST [2438] LOG:  checkpoint complete: wrote 1025 buffers (6.3%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=102.638 s, sync=0.099 s, total=102.782 s; sync files=396, longest=0.009 s, average=0.001 s; distance=5425 kB, estimate=5425 kB; lsn=0/1CABCC8, redo lsn=0/1CABC38
+2026-08-07 00:01:19.462 CEST [2434] LOG:  received smart shutdown request
+2026-08-07 09:17:05.928 CEST [2179] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-07 09:17:05.929 CEST [2179] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-07 09:17:05.932 CEST [2179] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-07 09:17:05.943 CEST [2185] LOG:  database system was interrupted; last known up at 2026-08-06 20:42:27 CEST
+2026-08-07 09:17:06.131 CEST [2185] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-08-07 09:17:06.137 CEST [2185] LOG:  redo starts at 0/1CABC38
+2026-08-07 09:17:06.137 CEST [2185] LOG:  invalid record length at 0/1CABD78: expected at least 24, got 0
+2026-08-07 09:17:06.137 CEST [2185] LOG:  redo done at 0/1CABD40 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2026-08-07 09:17:06.142 CEST [2183] LOG:  checkpoint starting: end-of-recovery immediate wait
+2026-08-07 09:17:06.160 CEST [2183] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.002 s, total=0.020 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/1CABD78, redo lsn=0/1CABD78
+2026-08-07 09:17:06.163 CEST [2179] LOG:  database system is ready to accept connections
+2026-08-07 09:17:56.653 CEST [2561] FATAL:  lock file "postmaster.pid" already exists
+2026-08-07 09:17:56.653 CEST [2561] HINT:  Is another postmaster (PID 2179) running in data directory "/home/bruno/code/Book-Seat/Book-Seat-Backend/data/db"?
+2026-08-07 09:22:06.260 CEST [2183] LOG:  checkpoint starting: time
+2026-08-07 09:22:22.309 CEST [2183] LOG:  checkpoint complete: wrote 159 buffers (1.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=15.970 s, sync=0.024 s, total=16.049 s; sync files=94, longest=0.004 s, average=0.001 s; distance=1278 kB, estimate=1278 kB; lsn=0/1DEB898, redo lsn=0/1DEB808
+2026-08-07 11:07:08.049 CEST [2183] LOG:  checkpoint starting: time
+2026-08-07 11:07:08.449 CEST [2183] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.347 s, sync=0.006 s, total=0.414 s; sync files=2, longest=0.005 s, average=0.003 s; distance=24 kB, estimate=1153 kB; lsn=0/1DF1900, redo lsn=0/1DF18A8
+2026-08-07 11:22:08.674 CEST [2183] LOG:  checkpoint starting: time
+2026-08-07 11:22:12.391 CEST [2183] LOG:  checkpoint complete: wrote 36 buffers (0.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=3.679 s, sync=0.006 s, total=3.725 s; sync files=15, longest=0.003 s, average=0.001 s; distance=170 kB, estimate=1054 kB; lsn=0/1E1C2B8, redo lsn=0/1E1C260
+2026-08-07 11:37:47.702 CEST [59187] LOG:  could not receive data from client: Connection reset by peer
+2026-08-07 12:52:09.681 CEST [2183] LOG:  checkpoint starting: time
+2026-08-07 12:52:09.835 CEST [2183] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.126 s, sync=0.002 s, total=0.164 s; sync files=1, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=949 kB; lsn=0/1E1C4E8, redo lsn=0/1E1C490

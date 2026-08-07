@@ -80,6 +80,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 	jwtPWD := os.Getenv("PASSWORD_JWT")
 	if jwtPWD == "" {
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
@@ -208,6 +209,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	jwtPWD := os.Getenv("PASSWORD_JWT")
 	if jwtPWD == "" {
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
@@ -275,7 +277,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashRefreshToken, err := service.GetRefreshToken(tokenService, r, user.ID)
+	hashRefreshToken, err := service.GetRefreshToken(tokenService, r)
 	if err != nil {
 		slog.Info("No refreshToken")
 	}
@@ -339,8 +341,114 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) AuthMe(w http.ResponseWriter, r *http.Request) {
 
+	if err := godotenv.Load(); err != nil {
+		log.Println("no .env file found, using system env vars")
+	}
+	jwtPWD := os.Getenv("PASSWORD_JWT")
+	if jwtPWD == "" {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	var tokenService = security.NewTokenService(jwtPWD)
+
+	getAccessToken, err := service.GetAccessToken(tokenService, r)
+
+	if err != nil {
+		slog.Error("failed to get access token", "error", err)
+		http.Error(w, "internal error", http.StatusUnauthorized)
+		return
+	}
+
+	if getAccessToken == "" {
+		http.Error(w, `{"message":"no access token found"}`, http.StatusUnauthorized)
+		return
+	}
+
+	claims, err := tokenService.ValidateAccessToken(getAccessToken)
+	if err != nil {
+		slog.Error("failed to validate access token", "error", err)
+		http.Error(w, "invalid access token", http.StatusUnauthorized)
+		return
+	}
+
+	Id, err := service.ToPgUUID(claims.UserID)
+
+	user, err := h.Queries.GetUserbyId(r.Context(), Id)
+	if err != nil {
+		slog.Error("failed to get user by ID", "error", err)
+		http.Error(w, "internal error", http.StatusUnauthorized)
+		return
+	}
+
+	slog.Info("Access token validated", "userID", claims.UserID, "email", claims.Email)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(
+		UserInfo{
+			Email: claims.Email,
+			Name:  user.UserName + " " + user.Surname,
+		},
+	)
 }
 
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
+
+	if err := godotenv.Load(); err != nil {
+		log.Println("no .env file found, using system env vars")
+	}
+	jwtPWD := os.Getenv("PASSWORD_JWT")
+	if jwtPWD == "" {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	var tokenService = security.NewTokenService(jwtPWD)
+	hash, err := service.GetRefreshToken(tokenService, r)
+	if err != nil {
+		slog.Error("failed to get refresh token", "error", err)
+		http.Error(w, "internal error", http.StatusUnauthorized)
+		return
+	}
+
+	if hash == "" {
+		http.Error(w, `{"message":"no refresh token found"}`, http.StatusUnauthorized)
+		return
+	}
+
+	tokenData, err := h.Queries.GetRefreshTokenByHash(r.Context(), sqlc.GetRefreshTokenByHashParams{
+		TokenHash: hash,
+		IsRevoked: false,
+	})
+	if err != nil {
+		slog.Error("failed to get refresh token by hash", "error", err)
+		http.Error(w, "internal error", http.StatusUnauthorized)
+		return
+	}
+
+	if tokenData.TokenHash != hash {
+		http.Error(w, `{"message":"invalid refresh token"}`, http.StatusUnauthorized)
+		return
+	}
+
+	// Create the JWT access token
+	accessToken, err := tokenService.GenerateAccessToken(tokenData.ID_2.String(), tokenData.Email)
+	if err != nil {
+		slog.Error("failed to generate access token", "error", err)
+		http.Error(w, "internal error", http.StatusUnauthorized)
+		return
+	}
+
+	security.SetAuthAccessToken(w, accessToken)
+
+	slog.Info("Refresh token validated", "userID", tokenData.ID_2, "email", tokenData.Email)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(
+		UserInfo{
+			Email: tokenData.Email,
+			Name:  tokenData.UserName + " " + tokenData.Surname,
+		},
+	)
 
 }
