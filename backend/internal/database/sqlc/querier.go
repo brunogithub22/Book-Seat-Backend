@@ -19,6 +19,7 @@ type Querier interface {
 	CreateUserBookManage(ctx context.Context, arg CreateUserBookManageParams) (pgtype.UUID, error)
 	CreateUserRoomBooking(ctx context.Context, arg CreateUserRoomBookingParams) (CreateUserRoomBookingRow, error)
 	CreateUserSeatBooking(ctx context.Context, arg CreateUserSeatBookingParams) (CreateUserSeatBookingRow, error)
+	DeleteRefreshToken(ctx context.Context, arg DeleteRefreshTokenParams) error
 	DeleteUser(ctx context.Context, arg DeleteUserParams) error
 	GetAllFromBooks(ctx context.Context) ([]Book, error)
 	GetRefreshToken(ctx context.Context, arg GetRefreshTokenParams) (GetRefreshTokenRow, error)

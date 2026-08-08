@@ -459,3 +459,59 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	)
 
 }
+
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	if err := godotenv.Load(); err != nil {
+		log.Println("no .env file found, using system env vars")
+	}
+	jwtPWD := os.Getenv("PASSWORD_JWT")
+	if jwtPWD == "" {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	var tokenService = security.NewTokenService(jwtPWD)
+	hash, err := service.GetRefreshToken(tokenService, r)
+	if err != nil {
+		slog.Error("failed to get refresh token", "error", err)
+		http.Error(w, "internal error", http.StatusUnauthorized)
+		return
+	}
+
+	if hash == "" {
+		http.Error(w, `{"message":"no refresh token found"}`, http.StatusUnauthorized)
+		return
+	}
+
+	tokenData, err := h.Queries.GetRefreshTokenByHash(r.Context(), sqlc.GetRefreshTokenByHashParams{
+		TokenHash: hash,
+		IsRevoked: false,
+	})
+	if err != nil {
+		slog.Error("failed to get refresh token by hash", "error", err)
+		http.Error(w, "internal error", http.StatusUnauthorized)
+		return
+	}
+
+	if tokenData.TokenHash != hash {
+		http.Error(w, `{"message":"invalid refresh token"}`, http.StatusUnauthorized)
+		return
+	}
+
+	err = h.Queries.DeleteRefreshToken(r.Context(), sqlc.DeleteRefreshTokenParams{
+		TokenHash: hash,
+		UserID:    tokenData.ID_2,
+	})
+
+	if err != nil {
+		slog.Error("failed to revoke refresh token", "error", err)
+		http.Error(w, "internal error", http.StatusUnauthorized)
+		return
+	}
+
+	security.ClearAuthCookies(w, false)
+
+	slog.Info("Refresh token revoked", "userID", tokenData.ID_2, "email", tokenData.Email)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}

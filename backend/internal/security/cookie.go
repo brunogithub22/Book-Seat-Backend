@@ -30,7 +30,7 @@ func SetAuthCookies(w http.ResponseWriter, accessToken, refreshToken string) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     RefreshTokenCookieName,
 		Value:    refreshToken,
-		Path:     "/", // only sent to the refresh endpoint
+		Path:     "/api/auth/refresh", // only sent to the refresh endpoint
 		Expires:  time.Now().Add(RefreshTokenTTL),
 		HttpOnly: true,
 		Secure:   false,
@@ -66,7 +66,7 @@ func ClearAuthCookies(w http.ResponseWriter, secure bool) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     RefreshTokenCookieName,
 		Value:    "",
-		Path:     "/auth/refresh",
+		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
 		HttpOnly: true,

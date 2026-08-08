@@ -11,6 +11,21 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const deleteRefreshToken = `-- name: DeleteRefreshToken :exec
+Delete From user_sessions
+Where user_id = $1 AND token_hash = $2
+`
+
+type DeleteRefreshTokenParams struct {
+	UserID    pgtype.UUID `json:"user_id"`
+	TokenHash string      `json:"token_hash"`
+}
+
+func (q *Queries) DeleteRefreshToken(ctx context.Context, arg DeleteRefreshTokenParams) error {
+	_, err := q.db.Exec(ctx, deleteRefreshToken, arg.UserID, arg.TokenHash)
+	return err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM person
 WHERE id = $1 AND email = $2
