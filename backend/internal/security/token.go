@@ -46,6 +46,21 @@ func (s *TokenService) GenerateAccessToken(userID, email string) (string, error)
 	return token.SignedString(s.jwtSecret)
 }
 
+// GeneratePreAuthToken creates a short-lived signed JWT for pre-authentication.
+func (s *TokenService) GeneratePreAuthToken(userID, email string) (string, error) {
+	claims := AccessTokenClaims{
+		UserID: userID,
+		Email:  email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(s.jwtSecret)
+}
+
 // ValidateAccessToken parses and verifies a JWT, returning its claims.
 func (s *TokenService) ValidateAccessToken(tokenStr string) (*AccessTokenClaims, error) {
 	claims := &AccessTokenClaims{}

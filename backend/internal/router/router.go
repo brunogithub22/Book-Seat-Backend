@@ -24,10 +24,10 @@ func NewRouter(db *pgxpool.Pool, queries *sqlc.Queries) http.Handler {
 	// PUBLIC ROUTES
 	// -----------------------------------------------------------------
 	mux.HandleFunc("POST /auth/signup", authHandler.SignUp)
-	mux.HandleFunc("POST /auth/signin", authHandler.SignIn)
+	mux.HandleFunc("POST /auth/refresh/signin", authHandler.SignIn)
 	mux.HandleFunc("POST /auth/me", authHandler.AuthMe)
 	mux.HandleFunc("POST /auth/refresh", authHandler.Refresh)
-	mux.HandleFunc("POST /auth/logout", authHandler.Logout)
+	mux.HandleFunc("POST /auth/refresh/logout", authHandler.Logout)
 
 	// OAuth 2.0 Auth Flow
 	//mux.HandleFunc("GET /auth/google/login", authHandler.HandleGoogleLogin)

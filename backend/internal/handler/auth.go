@@ -73,6 +73,8 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var payload SignupPayload
 	var hashedPassword string
 	userAgent := r.Header.Get("User-Agent")
+	slog.Info("SIGN UP Started")
+	slog.Info("Remeber", "", payload.Remember)
 	clientIP := security.GetClientIP(r)
 
 	if err := godotenv.Load(); err != nil {
@@ -167,29 +169,44 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 3. Persist only the hash
-	if err := h.Queries.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
-		UserID:    newUser.ID,
-		TokenHash: refreshHash,
-		ExpiresAt: pgtype.Timestamptz{Time: time.Now().Add(security.RefreshTokenTTL), Valid: true},
-		UserAgent: pgtype.Text{String: userAgent, Valid: userAgent != ""},
-		IpAddress: pgtype.Text{String: clientIP, Valid: clientIP != ""},
-		IsRevoked: false,
-		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-	}); err != nil {
-		slog.Error("failed to store refresh token", "error", err)
-		removeAccount(newUser.ID, newUser.Email)
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
+	if payload.Remember {
+		// 3. Persist only the hash
+		if err := h.Queries.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
+			UserID:    newUser.ID,
+			TokenHash: refreshHash,
+			ExpiresAt: pgtype.Timestamptz{Time: time.Now().Add(security.RefreshTokenTTL), Valid: true},
+			UserAgent: pgtype.Text{String: userAgent, Valid: userAgent != ""},
+			IpAddress: pgtype.Text{String: clientIP, Valid: clientIP != ""},
+			IsRevoked: false,
+			CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		}); err != nil {
+			slog.Error("failed to store refresh token", "error", err)
+			removeAccount(newUser.ID, newUser.Email)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
 
-	// 4. Send both raw tokens to the browser as HttpOnly cookies
-	security.SetAuthCookies(w, accessToken, refreshToken)
+		// 4. Send both raw tokens to the browser as HttpOnly cookies
+		security.SetAuthCookies(w, accessToken, refreshToken)
+		slog.Info("Auth cookies set for user", "email", newUser.Email, "id", newUser.ID)
+
+	} else {
+		preAuthToken, err := tokenService.GeneratePreAuthToken(newUser.ID.String(), newUser.Email)
+		if err != nil {
+			slog.Error("failed to generate pre-auth token", "error", err)
+			removeAccount(newUser.ID, newUser.Email)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+		security.SetPreAuthToken(w, preAuthToken)
+		slog.Info("Pre-auth token set for user", "email", newUser.Email, "id", newUser.ID)
+	}
 
 	slog.Info("New user created", "email", newUser.Email, "id", newUser.ID)
 
 	// 2. 🔍 CHECK IF COOKIES ARE INSERTED IN RESPONSE HEADERS
 	slog.Info("Response Set-Cookie Headers", "cookies", w.Header()["Set-Cookie"])
+	slog.Info("SIGN UP STOPED")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
@@ -202,9 +219,15 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
+	slog.Info("SIGN IN STARTED")
+	// Print raw Cookie header received by Go
+	slog.Info("Raw Cookie Header Received", "cookie_header", r.Header.Get("Cookie"))
+
 	var payload SigninPayload
 	userAgent := r.Header.Get("User-Agent")
 	clientIP := security.GetClientIP(r)
+
+	slog.Info("Remeber", "", payload.Remember)
 
 	if err := godotenv.Load(); err != nil {
 		log.Println("no .env file found, using system env vars")
@@ -279,11 +302,6 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashRefreshToken, err := service.GetRefreshToken(tokenService, r)
-	if err != nil {
-		slog.Info("No refreshToken")
-	}
-
 	addRefreshToken := func() {
 		//Create Refresh Token
 		refreshToken, refreshHash, err := security.GenerateRefreshToken()
@@ -310,25 +328,48 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	if hashRefreshToken != "" {
-		// Compare the hash of the get refresh tokens
-		tokenData, err := h.Queries.GetRefreshToken(r.Context(), sqlc.GetRefreshTokenParams{
-			UserID:    user.ID,
+	hash, err := service.GetRefreshToken(tokenService, r)
+	if err != nil {
+		slog.Error("failed to get refresh token", "error", err)
+	}
+
+	if hash != "" {
+
+		slog.Info("", "refreshTokenHash", hash)
+
+		tokenData, err := h.Queries.GetRefreshTokenByHash(r.Context(), sqlc.GetRefreshTokenByHashParams{
+			TokenHash: hash,
 			IsRevoked: false,
 		})
 		if err != nil {
-			slog.Error("failed to get info of the token refresh", "error", err)
+			slog.Error("failed to get refresh token by hash", "error", err)
+		}
+
+		err = h.Queries.DeleteRefreshToken(r.Context(), sqlc.DeleteRefreshTokenParams{
+			UserID:    user.ID,
+			TokenHash: tokenData.TokenHash,
+		})
+		if err != nil {
+			slog.Error("failed to delete all refresh tokens", "error", err)
+		}
+
+	}
+
+	if payload.Remember {
+		addRefreshToken()
+		slog.Info("Refresh token added for user", "email", user.Email, "id", user.ID)
+	} else {
+		preAuthToken, err := tokenService.GeneratePreAuthToken(user.ID.String(), user.Email)
+		if err != nil {
+			slog.Error("failed to generate pre-auth token", "error", err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
-		if tokenData.TokenHash != hashRefreshToken {
-			addRefreshToken()
-		} else {
-			security.SetAuthAccessToken(w, accessToken)
-		}
-	} else {
-		addRefreshToken()
+		security.SetPreAuthToken(w, preAuthToken)
+		slog.Info("Pre-auth token set for user", "email", user.Email, "id", user.ID)
 	}
+
+	slog.Info("SIGN IN STOPED")
 
 	// 2. 🔍 CHECK IF COOKIES ARE INSERTED IN RESPONSE HEADERS
 	slog.Info("Response Set-Cookie Headers", "cookies", w.Header()["Set-Cookie"])
@@ -344,6 +385,8 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) AuthMe(w http.ResponseWriter, r *http.Request) {
+
+	slog.Info("AUTH ME STARTED")
 
 	// Print raw Cookie header received by Go
 	slog.Info("Raw Cookie Header Received", "cookie_header", r.Header.Get("Cookie"))
@@ -389,6 +432,8 @@ func (h *AuthHandler) AuthMe(w http.ResponseWriter, r *http.Request) {
 
 	slog.Info("Access token validated", "userID", claims.UserID, "email", claims.Email)
 
+	slog.Info("AUTH ME STOPPED")
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
@@ -400,6 +445,11 @@ func (h *AuthHandler) AuthMe(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
+
+	slog.Info("REFRESH STARTED")
+
+	// Print raw Cookie header received by Go
+	slog.Info("Raw Cookie Header Received", "cookie_header", r.Header.Get("Cookie"))
 
 	if err := godotenv.Load(); err != nil {
 		log.Println("no .env file found, using system env vars")
@@ -421,6 +471,8 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"message":"no refresh token found"}`, http.StatusUnauthorized)
 		return
 	}
+
+	slog.Info("", "refreshTokenHash", hash)
 
 	tokenData, err := h.Queries.GetRefreshTokenByHash(r.Context(), sqlc.GetRefreshTokenByHashParams{
 		TokenHash: hash,
@@ -449,6 +501,8 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 
 	slog.Info("Refresh token validated", "userID", tokenData.ID_2, "email", tokenData.Email)
 
+	slog.Info("REFRESH STOPPED")
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
@@ -461,6 +515,7 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	slog.Info("LOGOUT STARTED")
 	if err := godotenv.Load(); err != nil {
 		log.Println("no .env file found, using system env vars")
 	}
@@ -511,7 +566,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	security.ClearAuthCookies(w, false)
 
 	slog.Info("Refresh token revoked", "userID", tokenData.ID_2, "email", tokenData.Email)
-
+	slog.Info("LOGOUT STOPPED")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }

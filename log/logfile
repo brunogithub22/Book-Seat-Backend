@@ -74,3 +74,67 @@
 2026-08-07 22:56:47.087 CEST [2326] LOG:  checkpoint starting: shutdown immediate
 2026-08-07 22:56:47.110 CEST [2326] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.027 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=1894 kB; lsn=0/1CB4B38, redo lsn=0/1CB4B38
 2026-08-07 22:56:47.152 CEST [2322] LOG:  database system is shut down
+2026-08-08 20:40:09.853 CEST [3272] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-08 20:40:09.855 CEST [3272] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-08 20:40:09.857 CEST [3272] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-08 20:40:09.872 CEST [3278] LOG:  database system was shut down at 2026-08-07 22:56:47 CEST
+2026-08-08 20:40:09.873 CEST [3278] LOG:  WAL file is from different database system: WAL file database system identifier is 7670989161033234792, pg_control database system identifier is 7671311792741206260
+2026-08-08 20:40:09.873 CEST [3278] LOG:  invalid checkpoint record
+2026-08-08 20:40:09.874 CEST [3278] PANIC:  could not locate a valid checkpoint record at 0/1CB4B38
+2026-08-08 20:40:09.886 CEST [3272] LOG:  startup process (PID 3278) was terminated by signal 6: Aborted
+2026-08-08 20:40:09.886 CEST [3272] LOG:  terminating any other active server processes
+2026-08-08 20:40:09.887 CEST [3272] LOG:  shutting down due to startup process failure
+2026-08-08 20:40:09.889 CEST [3272] LOG:  database system is shut down
+2026-08-08 20:40:27.668 CEST [3421] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-08 20:40:27.669 CEST [3421] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-08 20:40:27.672 CEST [3421] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-08 20:40:27.688 CEST [3427] LOG:  database system was shut down at 2026-08-07 22:56:47 CEST
+2026-08-08 20:40:27.688 CEST [3427] LOG:  WAL file is from different database system: WAL file database system identifier is 7670989161033234792, pg_control database system identifier is 7671311792741206260
+2026-08-08 20:40:27.688 CEST [3427] LOG:  invalid checkpoint record
+2026-08-08 20:40:27.688 CEST [3427] PANIC:  could not locate a valid checkpoint record at 0/1CB4B38
+2026-08-08 20:40:27.695 CEST [3421] LOG:  startup process (PID 3427) was terminated by signal 6: Aborted
+2026-08-08 20:40:27.695 CEST [3421] LOG:  terminating any other active server processes
+2026-08-08 20:40:27.695 CEST [3421] LOG:  shutting down due to startup process failure
+2026-08-08 20:40:27.697 CEST [3421] LOG:  database system is shut down
+2026-08-08 20:41:37.149 CEST [4134] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-08 20:41:37.149 CEST [4134] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-08 20:41:37.152 CEST [4134] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-08 20:41:37.158 CEST [4140] LOG:  database system was shut down at 2026-08-08 20:41:36 CEST
+2026-08-08 20:41:37.167 CEST [4134] LOG:  database system is ready to accept connections
+2026-08-08 20:46:37.274 CEST [4138] LOG:  checkpoint starting: time
+2026-08-08 20:48:21.393 CEST [4138] LOG:  checkpoint complete: wrote 1030 buffers (6.3%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=103.828 s, sync=0.060 s, total=104.122 s; sync files=396, longest=0.002 s, average=0.001 s; distance=5426 kB, estimate=5426 kB; lsn=0/1CAC410, redo lsn=0/1CAC380
+2026-08-08 21:01:37.699 CEST [4138] LOG:  checkpoint starting: time
+2026-08-08 21:01:38.279 CEST [4138] LOG:  checkpoint complete: wrote 5 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.533 s, sync=0.014 s, total=0.582 s; sync files=6, longest=0.007 s, average=0.003 s; distance=2 kB, estimate=4884 kB; lsn=0/1CACE98, redo lsn=0/1CACE40
+2026-08-09 11:29:27.127 CEST [4134] LOG:  received smart shutdown request
+2026-08-09 12:23:45.964 CEST [4205] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-09 12:23:45.965 CEST [4205] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-09 12:23:45.968 CEST [4205] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-09 12:23:45.976 CEST [4211] LOG:  database system was interrupted; last known up at 2026-08-08 21:01:38 CEST
+2026-08-09 12:23:46.233 CEST [4211] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-08-09 12:23:46.239 CEST [4211] LOG:  redo starts at 0/1CACE40
+2026-08-09 12:23:46.239 CEST [4211] LOG:  invalid record length at 0/1CACF48: expected at least 24, got 0
+2026-08-09 12:23:46.239 CEST [4211] LOG:  redo done at 0/1CACF10 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2026-08-09 12:23:46.245 CEST [4209] LOG:  checkpoint starting: end-of-recovery immediate wait
+2026-08-09 12:23:46.260 CEST [4209] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.003 s, total=0.018 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=0 kB; lsn=0/1CACF48, redo lsn=0/1CACF48
+2026-08-09 12:23:46.262 CEST [4205] LOG:  database system is ready to accept connections
+2026-08-09 12:28:46.360 CEST [4209] LOG:  checkpoint starting: time
+2026-08-09 12:29:02.586 CEST [4209] LOG:  checkpoint complete: wrote 161 buffers (1.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=16.177 s, sync=0.030 s, total=16.227 s; sync files=94, longest=0.003 s, average=0.001 s; distance=1279 kB, estimate=1279 kB; lsn=0/1DECEC0, redo lsn=0/1DECE30
+2026-08-09 14:20:53.005 CEST [17138] LOG:  could not receive data from client: Connection reset by peer
+2026-08-09 15:09:36.795 CEST [4209] LOG:  checkpoint starting: time
+2026-08-09 15:09:37.376 CEST [4209] LOG:  checkpoint complete: wrote 5 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.537 s, sync=0.011 s, total=0.587 s; sync files=6, longest=0.006 s, average=0.002 s; distance=2 kB, estimate=1151 kB; lsn=0/1DED7E0, redo lsn=0/1DED788
+2026-08-09 15:14:36.471 CEST [4209] LOG:  checkpoint starting: time
+2026-08-09 15:14:36.623 CEST [4209] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.106 s, sync=0.005 s, total=0.153 s; sync files=1, longest=0.005 s, average=0.005 s; distance=0 kB, estimate=1036 kB; lsn=0/1DEDB20, redo lsn=0/1DEDAC8
+2026-08-09 15:49:37.178 CEST [4209] LOG:  checkpoint starting: time
+2026-08-09 15:49:37.557 CEST [4209] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.341 s, sync=0.006 s, total=0.388 s; sync files=4, longest=0.004 s, average=0.002 s; distance=1 kB, estimate=933 kB; lsn=0/1DEE338, redo lsn=0/1DEE2A8
+2026-08-09 15:59:37.759 CEST [4209] LOG:  checkpoint starting: time
+2026-08-09 15:59:38.024 CEST [4209] LOG:  checkpoint complete: wrote 2 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.222 s, sync=0.008 s, total=0.267 s; sync files=3, longest=0.006 s, average=0.003 s; distance=1 kB, estimate=840 kB; lsn=0/1DEE9C0, redo lsn=0/1DEE968
+2026-08-09 16:29:43.977 CEST [27146] LOG:  could not receive data from client: Connection reset by peer
+2026-08-09 16:54:38.074 CEST [4209] LOG:  checkpoint starting: time
+2026-08-09 16:54:38.254 CEST [4209] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.151 s, sync=0.004 s, total=0.188 s; sync files=2, longest=0.003 s, average=0.002 s; distance=1 kB, estimate=756 kB; lsn=0/1DEEFD8, redo lsn=0/1DEEF80
+2026-08-09 17:05:07.351 CEST [4205] LOG:  received fast shutdown request
+2026-08-09 17:05:07.361 CEST [4205] LOG:  aborting any active transactions
+2026-08-09 17:05:07.374 CEST [4205] LOG:  background worker "logical replication launcher" (PID 4220) exited with exit code 1
+2026-08-09 17:05:07.386 CEST [4209] LOG:  shutting down
+2026-08-09 17:05:07.389 CEST [4209] LOG:  checkpoint starting: shutdown immediate
+2026-08-09 17:05:07.422 CEST [4209] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.018 s, sync=0.001 s, total=0.035 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=680 kB; lsn=0/1DEF088, redo lsn=0/1DEF088
+2026-08-09 17:05:07.457 CEST [4205] LOG:  database system is shut down

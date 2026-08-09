@@ -10,9 +10,11 @@ import (
 const (
 	AccessTokenCookieName  = "access_token"
 	RefreshTokenCookieName = "refresh_token"
+	PreAuthTokenCookieName = "pre_auth_token"
 
 	AccessTokenTTL  = 15 * time.Minute
 	RefreshTokenTTL = 7 * 24 * time.Hour
+	PreAuthTokenTTL = 1 * time.Minute
 )
 
 // SetAuthCookies writes both the access and refresh token cookies to the response.
@@ -50,6 +52,18 @@ func SetAuthAccessToken(w http.ResponseWriter, accessToken string) {
 	})
 }
 
+func SetPreAuthToken(w http.ResponseWriter, authToken string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     PreAuthTokenCookieName,
+		Value:    authToken,
+		Path:     "/api/auth",
+		Expires:  time.Now().Add(PreAuthTokenTTL),
+		HttpOnly: true,
+		Secure:   false, // true in production (HTTPS), false only for local http dev
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
 // ClearAuthCookies expires both cookies immediately — used on logout.
 func ClearAuthCookies(w http.ResponseWriter, secure bool) {
 	http.SetCookie(w, &http.Cookie{
@@ -66,7 +80,7 @@ func ClearAuthCookies(w http.ResponseWriter, secure bool) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     RefreshTokenCookieName,
 		Value:    "",
-		Path:     "/",
+		Path:     "/api/auth/refresh",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
 		HttpOnly: true,
