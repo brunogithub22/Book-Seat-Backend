@@ -7,6 +7,7 @@ import (
 
 	"backend/internal/database/sqlc"
 	"backend/internal/handler"
+	"backend/internal/middleware"
 	"backend/internal/security"
 )
 
@@ -23,8 +24,9 @@ func NewRouter(db *pgxpool.Pool, queries *sqlc.Queries) http.Handler {
 	// -----------------------------------------------------------------
 	// PUBLIC ROUTES
 	// -----------------------------------------------------------------
+	mux.HandleFunc("POST /auth/CSRF", authHandler.CSRF_SignIn)
 	mux.HandleFunc("POST /auth/signup", authHandler.SignUp)
-	mux.HandleFunc("POST /auth/refresh/signin", authHandler.SignIn)
+	mux.Handle("POST /auth/refresh/signin", middleware.CSRF(http.HandlerFunc(authHandler.SignIn)))
 	mux.HandleFunc("POST /auth/me", authHandler.AuthMe)
 	mux.HandleFunc("POST /auth/refresh", authHandler.Refresh)
 	mux.HandleFunc("POST /auth/refresh/logout", authHandler.Logout)

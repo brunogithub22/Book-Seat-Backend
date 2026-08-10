@@ -138,3 +138,10 @@
 2026-08-09 17:05:07.389 CEST [4209] LOG:  checkpoint starting: shutdown immediate
 2026-08-09 17:05:07.422 CEST [4209] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.018 s, sync=0.001 s, total=0.035 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=680 kB; lsn=0/1DEF088, redo lsn=0/1DEF088
 2026-08-09 17:05:07.457 CEST [4205] LOG:  database system is shut down
+2026-08-10 12:32:14.845 CEST [62361] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-10 12:32:14.852 CEST [62361] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-10 12:32:14.855 CEST [62361] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-10 12:32:14.869 CEST [62367] LOG:  database system was shut down at 2026-08-09 17:05:07 CEST
+2026-08-10 12:32:14.885 CEST [62361] LOG:  database system is ready to accept connections
+2026-08-10 12:37:14.973 CEST [62365] LOG:  checkpoint starting: time
+2026-08-10 12:37:28.743 CEST [62365] LOG:  checkpoint complete: wrote 136 buffers (0.8%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=13.721 s, sync=0.033 s, total=13.772 s; sync files=94, longest=0.006 s, average=0.001 s; distance=1086 kB, estimate=1086 kB; lsn=0/1EFE988, redo lsn=0/1EFE8F8

@@ -3,6 +3,7 @@ package security
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"net/http"
@@ -113,4 +114,12 @@ func getTokenFromCookie(r *http.Request) (string, error) {
 		return "", errors.New("access_token cookie is empty")
 	}
 	return cookie.Value, nil
+}
+
+func (s *TokenService) GenerateCSRFToken() (string, error) {
+	b := make([]byte, 32) // 32 bytes = 256 bits of randomness
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
 }

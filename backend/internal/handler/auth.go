@@ -4,7 +4,6 @@ import (
 	"backend/internal/database/sqlc"
 	"encoding/json"
 	"errors"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -16,7 +15,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 	"github.com/sqlc-dev/pqtype"
 )
 
@@ -25,6 +23,10 @@ type AuthHandler struct {
 	DB          *pgxpool.Pool
 	Queries     *sqlc.Queries
 	ArgonHasher *security.ArgonHasher
+}
+
+type CSRFResponse struct {
+	Token bool `json:"token"`
 }
 
 // NewAuthHandler is the constructor called by router.NewRouter.
@@ -77,16 +79,12 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Remeber", "", payload.Remember)
 	clientIP := security.GetClientIP(r)
 
-	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file found, using system env vars")
-	}
-	jwtPWD := os.Getenv("PASSWORD_JWT")
-	if jwtPWD == "" {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	tokenService, err := service.Tokenkey()
+	if err != nil {
+		http.Error(w, "JWTPassword error", http.StatusInternalServerError)
+		slog.Error("JWT Error")
 		return
 	}
-
-	var tokenService = security.NewTokenService(jwtPWD)
 
 	defer r.Body.Close()
 
@@ -217,6 +215,46 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+func (h *AuthHandler) CSRF_SignIn(w http.ResponseWriter, r *http.Request) {
+
+	slog.Info("CSRF Start")
+	slog.Info("Raw Cookie Header Received", "cookie_header", r.Header.Get("Cookie"))
+
+	tokenService, err := service.Tokenkey()
+	if err != nil {
+		http.Error(w, "JWTPassword error", http.StatusInternalServerError)
+		slog.Error("JWT Error")
+		return
+	}
+
+	isAvailble, err := service.GetCSRFToken(tokenService, r)
+	if err != nil {
+		slog.Error("Not token given")
+	}
+
+	if !isAvailble {
+		CSRFToken, err := tokenService.GenerateCSRFToken()
+		if err != nil {
+			http.Error(w, "CSRF error", http.StatusInternalServerError)
+			slog.Error("CSRF error", "err", err)
+			return
+		}
+		security.SetCSRFCookie(w, CSRFToken)
+		// 2. 🔍 CHECK IF COOKIES ARE INSERTED IN RESPONSE HEADERS
+		slog.Info("Response Set-Cookie Headers", "cookies", w.Header()["Set-Cookie"])
+
+	} else {
+		slog.Info("CSRF Token was already set")
+	}
+
+	slog.Info("CSRF Stop")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(CSRFResponse{
+		Token: true,
+	})
+}
+
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	slog.Info("SIGN IN STARTED")
@@ -229,16 +267,12 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	slog.Info("Remeber", "", payload.Remember)
 
-	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file found, using system env vars")
-	}
-	jwtPWD := os.Getenv("PASSWORD_JWT")
-	if jwtPWD == "" {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	tokenService, err := service.Tokenkey()
+	if err != nil {
+		http.Error(w, "JWTPassword error", http.StatusInternalServerError)
+		slog.Error("JWT Error")
 		return
 	}
-
-	var tokenService = security.NewTokenService(jwtPWD)
 
 	defer r.Body.Close()
 
@@ -391,15 +425,12 @@ func (h *AuthHandler) AuthMe(w http.ResponseWriter, r *http.Request) {
 	// Print raw Cookie header received by Go
 	slog.Info("Raw Cookie Header Received", "cookie_header", r.Header.Get("Cookie"))
 
-	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file found, using system env vars")
-	}
-	jwtPWD := os.Getenv("PASSWORD_JWT")
-	if jwtPWD == "" {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	tokenService, err := service.Tokenkey()
+	if err != nil {
+		http.Error(w, "JWTPassword error", http.StatusInternalServerError)
+		slog.Error("JWT Error")
 		return
 	}
-	var tokenService = security.NewTokenService(jwtPWD)
 
 	getAccessToken, err := service.GetAccessToken(tokenService, r)
 
@@ -451,15 +482,13 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	// Print raw Cookie header received by Go
 	slog.Info("Raw Cookie Header Received", "cookie_header", r.Header.Get("Cookie"))
 
-	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file found, using system env vars")
-	}
-	jwtPWD := os.Getenv("PASSWORD_JWT")
-	if jwtPWD == "" {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	tokenService, err := service.Tokenkey()
+	if err != nil {
+		http.Error(w, "JWTPassword error", http.StatusInternalServerError)
+		slog.Error("JWT Error")
 		return
 	}
-	var tokenService = security.NewTokenService(jwtPWD)
+
 	hash, err := service.GetRefreshToken(tokenService, r)
 	if err != nil {
 		slog.Error("failed to get refresh token", "error", err)
@@ -516,15 +545,13 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	slog.Info("LOGOUT STARTED")
-	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file found, using system env vars")
-	}
-	jwtPWD := os.Getenv("PASSWORD_JWT")
-	if jwtPWD == "" {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	tokenService, err := service.Tokenkey()
+	if err != nil {
+		http.Error(w, "JWTPassword error", http.StatusInternalServerError)
+		slog.Error("JWT Error")
 		return
 	}
-	var tokenService = security.NewTokenService(jwtPWD)
+
 	hash, err := service.GetRefreshToken(tokenService, r)
 	if err != nil {
 		slog.Error("failed to get refresh token", "error", err)
