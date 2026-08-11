@@ -145,3 +145,31 @@
 2026-08-10 12:32:14.885 CEST [62361] LOG:  database system is ready to accept connections
 2026-08-10 12:37:14.973 CEST [62365] LOG:  checkpoint starting: time
 2026-08-10 12:37:28.743 CEST [62365] LOG:  checkpoint complete: wrote 136 buffers (0.8%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=13.721 s, sync=0.033 s, total=13.772 s; sync files=94, longest=0.006 s, average=0.001 s; distance=1086 kB, estimate=1086 kB; lsn=0/1EFE988, redo lsn=0/1EFE8F8
+                                                                           2026-08-11 10:04:41.486 CEST [3317] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-11 10:04:41.491 CEST [3317] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-11 10:04:41.494 CEST [3317] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-11 10:04:41.505 CEST [3326] LOG:  database system was interrupted; last known up at 2026-08-10 12:37:28 CEST
+2026-08-11 10:04:41.693 CEST [3326] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-08-11 10:04:41.705 CEST [3326] LOG:  redo starts at 0/1EFE8F8
+2026-08-11 10:04:41.711 CEST [3326] LOG:  invalid record length at 0/1F16BC8: expected at least 24, got 0
+2026-08-11 10:04:41.712 CEST [3326] LOG:  redo done at 0/1F16B90 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.01 s
+2026-08-11 10:04:41.720 CEST [3322] LOG:  checkpoint starting: end-of-recovery immediate wait
+2026-08-11 10:04:41.752 CEST [3322] LOG:  checkpoint complete: wrote 17 buffers (0.1%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.010 s, sync=0.006 s, total=0.035 s; sync files=13, longest=0.003 s, average=0.001 s; distance=96 kB, estimate=96 kB; lsn=0/1F16BC8, redo lsn=0/1F16BC8
+2026-08-11 10:04:41.757 CEST [3317] LOG:  database system is ready to accept connections
+2026-08-11 10:04:50.508 CEST [3473] LOG:  could not receive data from client: Connection reset by peer
+2026-08-11 10:09:41.782 CEST [3322] LOG:  checkpoint starting: time
+2026-08-11 10:09:58.943 CEST [3322] LOG:  checkpoint complete: wrote 170 buffers (1.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 1 recycled; write=17.109 s, sync=0.028 s, total=17.162 s; sync files=95, longest=0.005 s, average=0.001 s; distance=1196 kB, estimate=1196 kB; lsn=0/2041E40, redo lsn=0/2041DB0
+2026-08-11 10:29:42.190 CEST [3322] LOG:  checkpoint starting: time
+2026-08-11 10:29:42.872 CEST [3322] LOG:  checkpoint complete: wrote 6 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.636 s, sync=0.005 s, total=0.687 s; sync files=7, longest=0.003 s, average=0.001 s; distance=2 kB, estimate=1077 kB; lsn=0/2042890, redo lsn=0/2042838
+2026-08-11 10:34:42.972 CEST [3322] LOG:  checkpoint starting: time
+2026-08-11 10:34:43.514 CEST [3322] LOG:  checkpoint complete: wrote 5 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.520 s, sync=0.008 s, total=0.542 s; sync files=6, longest=0.005 s, average=0.002 s; distance=2 kB, estimate=969 kB; lsn=0/2043400, redo lsn=0/20433A8
+2026-08-11 10:49:42.654 CEST [3322] LOG:  checkpoint starting: time
+2026-08-11 10:49:42.811 CEST [3322] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.129 s, sync=0.006 s, total=0.160 s; sync files=2, longest=0.004 s, average=0.003 s; distance=1 kB, estimate=872 kB; lsn=0/20438A8, redo lsn=0/2043850
+2026-08-11 12:53:16.920 CEST [3317] LOG:  received fast shutdown request
+2026-08-11 12:53:16.931 CEST [3317] LOG:  aborting any active transactions
+2026-08-11 12:53:16.940 CEST [11537] FATAL:  terminating connection due to administrator command
+2026-08-11 12:53:16.941 CEST [3317] LOG:  background worker "logical replication launcher" (PID 3332) exited with exit code 1
+2026-08-11 12:53:16.953 CEST [3322] LOG:  shutting down
+2026-08-11 12:53:16.958 CEST [3322] LOG:  checkpoint starting: shutdown immediate
+2026-08-11 12:53:17.005 CEST [3322] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.022 s, sync=0.001 s, total=0.053 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=785 kB; lsn=0/2043958, redo lsn=0/2043958
+2026-08-11 12:53:17.037 CEST [3317] LOG:  database system is shut down

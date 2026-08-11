@@ -20,6 +20,7 @@ func NewRouter(db *pgxpool.Pool, queries *sqlc.Queries) http.Handler {
 	// 2. Initialize handlers with dependencies
 	//userHandler := handler.NewUserHandler(db)
 	authHandler := handler.NewAuthHandler(db, queries, security.NewArgonHasher(nil))
+	authgoogleHandler := handler.NewAuthGoogleHandler(db, queries)
 
 	// -----------------------------------------------------------------
 	// PUBLIC ROUTES
@@ -30,6 +31,8 @@ func NewRouter(db *pgxpool.Pool, queries *sqlc.Queries) http.Handler {
 	mux.HandleFunc("POST /auth/me", authHandler.AuthMe)
 	mux.HandleFunc("POST /auth/refresh", authHandler.Refresh)
 	mux.HandleFunc("POST /auth/refresh/logout", authHandler.Logout)
+	mux.HandleFunc("GET /auth/google/callback", authgoogleHandler.Callback)
+	mux.HandleFunc("GET /auth/google/signin", authgoogleHandler.Login)
 
 	// OAuth 2.0 Auth Flow
 	//mux.HandleFunc("GET /auth/google/login", authHandler.HandleGoogleLogin)

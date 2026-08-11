@@ -16,7 +16,6 @@ const (
 	AccessTokenTTL  = 15 * time.Minute
 	RefreshTokenTTL = 7 * 24 * time.Hour
 	PreAuthTokenTTL = 1 * time.Minute
-	CSRFTokenTTL    = 15 * time.Minute
 )
 
 // SetAuthCookies writes both the access and refresh token cookies to the response.
@@ -62,7 +61,6 @@ func SetCSRFCookie(w http.ResponseWriter, csrfToken string) {
 		HttpOnly: false,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
-		Expires:  time.Now().Add(CSRFTokenTTL),
 	})
 }
 
