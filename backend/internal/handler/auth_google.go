@@ -3,6 +3,8 @@ package handler
 import (
 	"backend/internal/database/sqlc"
 	"backend/internal/security"
+	"backend/internal/service"
+	"encoding/json"
 	"net/http"
 
 	"context"
@@ -18,7 +20,9 @@ import (
 	"google.golang.org/api/idtoken"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/sqlc-dev/pqtype"
 )
 
 type AuthGoogleHandler struct {
@@ -34,7 +38,8 @@ type GoogleClaims struct {
 	Sub           string // stable, unique Google user ID — this is the FK you store, not email
 	Email         string
 	EmailVerified bool
-	Name          string
+	FirstName     string
+	Surname       string
 }
 
 // verifyGoogleIDToken validates the id_token's signature against Google's public
@@ -57,7 +62,8 @@ func verifyGoogleIDToken(ctx context.Context, rawIDToken string) (*GoogleClaims,
 
 	email, _ := payload.Claims["email"].(string) // absent if "email" scope wasn't granted
 	emailVerified, _ := payload.Claims["email_verified"].(bool)
-	name, _ := payload.Claims["name"].(string)
+	givenName, _ := payload.Claims["given_name"].(string)
+	familyName, _ := payload.Claims["family_name"].(string)
 
 	if email == "" {
 		slog.Warn("google id_token has no email claim", "sub", sub)
@@ -67,7 +73,8 @@ func verifyGoogleIDToken(ctx context.Context, rawIDToken string) (*GoogleClaims,
 		Sub:           sub,
 		Email:         email,
 		EmailVerified: emailVerified,
-		Name:          name,
+		FirstName:     givenName,
+		Surname:       familyName,
 	}, nil
 }
 
@@ -97,6 +104,9 @@ func NewAuthGoogleHandler(pool *pgxpool.Pool, queries *sqlc.Queries, argonHasher
 }
 
 func (h *AuthGoogleHandler) Login(w http.ResponseWriter, r *http.Request) {
+
+	slog.Info("Login STARTED")
+
 	state, err := generateState()
 	if err != nil {
 		slog.Error("failed to generate oauth state", "error", err)
@@ -115,13 +125,28 @@ func (h *AuthGoogleHandler) Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	url := googleOAuthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	slog.Info("Callback STOPPED")
 	http.Redirect(w, r, url, http.StatusFound)
 }
 
 func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
+
+	var userID pgtype.UUID
+
+	clientIP := security.GetClientIP(r)
+	userAgent := r.Header.Get("User-Agent")
+
+	slog.Info("Callback STARTED")
 	stateCookie, err := r.Cookie("oauth_state")
 	if err != nil {
 		http.Error(w, "missing state cookie", http.StatusBadRequest)
+		return
+	}
+
+	tokenService, err := service.Tokenkey()
+	if err != nil {
+		http.Error(w, "JWTPassword error", http.StatusInternalServerError)
+		slog.Error("JWT Error")
 		return
 	}
 
@@ -181,8 +206,86 @@ func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	not_exists := errors.Is(err, pgx.ErrNoRows)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			slog.Info("No existing account found for", "email", user.Email)
+		} else {
+			slog.Error("Something went wrong during the check of the account")
+		}
+	}
+	if not_exists {
+		roleObj := RoleData{
+			Role:        "admin", // or payload.Role
+			Permissions: []string{"read", "write", "delete"},
+		}
 
-	slog.Info("Account was not previulsy addedd")
+		// 2. Marshal to []byte
+		roleJSON, err := json.Marshal(roleObj)
+		if err != nil {
+			http.Error(w, `{"message":"invalid role format"}`, http.StatusBadRequest)
+			return
+		}
+
+		newUser, err := h.Queries.CreatePerson(r.Context(), sqlc.CreatePersonParams{
+			UserRole: pqtype.NullRawMessage{
+				RawMessage: roleJSON,
+				Valid:      true, // Tells the driver this value is not NULL
+			},
+			UserName:      claims.FirstName,
+			Surname:       claims.Surname,
+			PasswordHash:  "",
+			Email:         claims.Email,
+			Remember:      true,
+			GoogleAccount: true,
+		})
+		if err != nil {
+			http.Error(w, "Error creating the account", http.StatusInternalServerError)
+			slog.Error("Error during creation of the account")
+		}
+		userID = newUser.ID
+		slog.Info("Account addedd", "name", newUser.Email)
+	} else {
+		userID = user.ID
+		slog.Info("Account was previulsy addedd")
+	}
+
+	// 1. Create the JWT access token
+	accessToken, err := tokenService.GenerateAccessToken(userID.String(), claims.Email)
+	if err != nil {
+		slog.Error("failed to generate access token", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	// 2. Create the opaque refresh token (raw for client, hash for DB)
+	refreshToken, refreshHash, err := security.GenerateRefreshToken()
+	if err != nil {
+		slog.Error("failed to generate refresh token", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	// 3. Persist only the hash
+	if err := h.Queries.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
+		UserID:    userID,
+		TokenHash: refreshHash,
+		ExpiresAt: pgtype.Timestamptz{Time: time.Now().Add(security.RefreshTokenTTL), Valid: true},
+		UserAgent: pgtype.Text{String: userAgent, Valid: userAgent != ""},
+		IpAddress: pgtype.Text{String: clientIP, Valid: clientIP != ""},
+		IsRevoked: false,
+		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+	}); err != nil {
+		slog.Error("failed to store refresh token", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	// 4. Send both raw tokens to the browser as HttpOnly cookies
+	security.SetAuthCookies(w, accessToken, refreshToken)
+	slog.Info("Auth cookies set for user", "email", claims.Email, "id", userID)
+
+	slog.Info("Callback STOPPED")
 
 	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/dashboard", http.StatusFound)
 }
