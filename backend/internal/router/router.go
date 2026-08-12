@@ -20,23 +20,25 @@ func NewRouter(db *pgxpool.Pool, queries *sqlc.Queries) http.Handler {
 	// 2. Initialize handlers with dependencies
 	//userHandler := handler.NewUserHandler(db)
 	authHandler := handler.NewAuthHandler(db, queries, security.NewArgonHasher(nil))
-	authgoogleHandler := handler.NewAuthGoogleHandler(db, queries)
-
+	authgoogleHandler := handler.NewAuthGoogleHandler(db, queries, security.NewArgonHasher(nil))
+	userHandler := handler.NewUserHandler(db, queries, security.NewArgonHasher(nil))
 	// -----------------------------------------------------------------
 	// PUBLIC ROUTES
 	// -----------------------------------------------------------------
+
+	// Session route
 	mux.HandleFunc("POST /auth/CSRF", authHandler.CSRF_SignIn)
 	mux.HandleFunc("POST /auth/signup", authHandler.SignUp)
 	mux.Handle("POST /auth/refresh/signin", middleware.CSRF(http.HandlerFunc(authHandler.SignIn)))
+	mux.HandleFunc("POST /auth/check_account_type", authHandler.GetAccountType)
 	mux.HandleFunc("POST /auth/me", authHandler.AuthMe)
 	mux.HandleFunc("POST /auth/refresh", authHandler.Refresh)
 	mux.HandleFunc("POST /auth/refresh/logout", authHandler.Logout)
-	mux.HandleFunc("GET /auth/google/callback", authgoogleHandler.Callback)
-	mux.HandleFunc("GET /auth/google/signin", authgoogleHandler.Login)
+	mux.HandleFunc("DELETE /auth/delete_account", userHandler.DeleteAccount)
 
 	// OAuth 2.0 Auth Flow
-	//mux.HandleFunc("GET /auth/google/login", authHandler.HandleGoogleLogin)
-	//mux.HandleFunc("GET /auth/google/callback", authHandler.HandleGoogleCallback)
+	mux.HandleFunc("GET /auth/google/callback", authgoogleHandler.Callback)
+	mux.HandleFunc("GET /auth/google/signin", authgoogleHandler.Login)
 
 	// -----------------------------------------------------------------
 	// PROTECTED ROUTES (Require JWT Authentication)

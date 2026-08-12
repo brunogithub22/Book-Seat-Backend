@@ -17,17 +17,6 @@ type Book struct {
 	BookDescription string      `json:"book_description"`
 }
 
-type OauthAccount struct {
-	ID             pgtype.UUID        `json:"id"`
-	UserID         pgtype.UUID        `json:"user_id"`
-	Provider       string             `json:"provider"`
-	ProviderUserID string             `json:"provider_user_id"`
-	AccessToken    pgtype.Text        `json:"access_token"`
-	RefreshToken   pgtype.Text        `json:"refresh_token"`
-	CreatedAt      pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
-}
-
 type Organization struct {
 	ID               pgtype.UUID           `json:"id"`
 	NameOrganization string                `json:"name_organization"`
@@ -36,13 +25,14 @@ type Organization struct {
 }
 
 type Person struct {
-	ID           pgtype.UUID           `json:"id"`
-	UserName     string                `json:"user_name"`
-	UserRole     pqtype.NullRawMessage `json:"user_role"`
-	Surname      string                `json:"surname"`
-	PasswordHash string                `json:"password_hash"`
-	Email        string                `json:"email"`
-	Remember     bool                  `json:"remember"`
+	ID            pgtype.UUID           `json:"id"`
+	UserName      string                `json:"user_name"`
+	UserRole      pqtype.NullRawMessage `json:"user_role"`
+	Surname       string                `json:"surname"`
+	PasswordHash  string                `json:"password_hash"`
+	Email         string                `json:"email"`
+	Remember      bool                  `json:"remember"`
+	GoogleAccount bool                  `json:"google_account"`
 }
 
 type Room struct {

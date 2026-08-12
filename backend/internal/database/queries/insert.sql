@@ -5,9 +5,10 @@ INSERT INTO person (
     surname,
     password_hash,
     email,
-    remember
+    remember,
+    google_account
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 )
 RETURNING id,email; 
 
@@ -53,6 +54,7 @@ INSERT INTO user_sessions(
 )VALUES(
     $1, $2, $3, $4, $5, $6, $7
 );
+
 
 -- name: CreateUserRoomBooking :one
 INSERT INTO user_room_booking (

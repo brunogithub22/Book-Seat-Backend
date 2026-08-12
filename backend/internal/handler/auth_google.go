@@ -2,6 +2,7 @@ package handler
 
 import (
 	"backend/internal/database/sqlc"
+	"backend/internal/security"
 	"net/http"
 
 	"context"
@@ -20,8 +21,9 @@ import (
 )
 
 type AuthGoogleHandler struct {
-	DB      *pgxpool.Pool
-	Queries *sqlc.Queries
+	DB          *pgxpool.Pool
+	Queries     *sqlc.Queries
+	ArgonHasher *security.ArgonHasher
 }
 
 // GoogleClaims holds the identity fields we actually need out of the id_token.
@@ -89,8 +91,8 @@ func generateState() (string, error) {
 }
 
 // NewAuthHandler is the constructor called by router.NewRouter.
-func NewAuthGoogleHandler(pool *pgxpool.Pool, queries *sqlc.Queries) *AuthGoogleHandler {
-	return &AuthGoogleHandler{DB: pool, Queries: queries}
+func NewAuthGoogleHandler(pool *pgxpool.Pool, queries *sqlc.Queries, argonHasher *security.ArgonHasher) *AuthGoogleHandler {
+	return &AuthGoogleHandler{DB: pool, Queries: queries, ArgonHasher: argonHasher}
 }
 
 func (h *AuthGoogleHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -166,19 +168,7 @@ func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.UserService.FindOrCreateByGoogleSub(ctx, claims.Sub, claims.Email, claims.Name)
-	if err != nil {
-		slog.Error("find or create user failed", "error", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	// same session issuance as your existing password login path
-	if err := h.IssueSession(w, r, user); err != nil { // wraps SetAuthCookies etc.
-		slog.Error("failed to issue session", "error", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
+	slog.Info(claims.Email)
 
 	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/dashboard", http.StatusFound)
 }

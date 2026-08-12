@@ -173,3 +173,52 @@
 2026-08-11 12:53:16.958 CEST [3322] LOG:  checkpoint starting: shutdown immediate
 2026-08-11 12:53:17.005 CEST [3322] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.022 s, sync=0.001 s, total=0.053 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=785 kB; lsn=0/2043958, redo lsn=0/2043958
 2026-08-11 12:53:17.037 CEST [3317] LOG:  database system is shut down
+2026-08-12 09:43:51.001 CEST [12691] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-12 09:43:51.006 CEST [12691] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-12 09:43:51.010 CEST [12691] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-12 09:43:51.020 CEST [12697] LOG:  database system was shut down at 2026-08-11 12:53:16 CEST
+2026-08-12 09:43:51.037 CEST [12691] LOG:  database system is ready to accept connections
+2026-08-12 09:46:41.383 CEST [12791] ERROR:  unrecognized configuration parameter "tables"
+2026-08-12 09:46:41.383 CEST [12791] STATEMENT:  Show Tables
+	;
+2026-08-12 09:48:51.099 CEST [12695] LOG:  checkpoint starting: time
+2026-08-12 09:49:04.941 CEST [12695] LOG:  checkpoint complete: wrote 134 buffers (0.8%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=13.479 s, sync=0.303 s, total=13.843 s; sync files=99, longest=0.017 s, average=0.004 s; distance=1047 kB, estimate=1047 kB; lsn=0/21496B8, redo lsn=0/2149628
+2026-08-12 09:53:52.015 CEST [12695] LOG:  checkpoint starting: time
+2026-08-12 09:53:52.154 CEST [12695] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.107 s, sync=0.004 s, total=0.141 s; sync files=1, longest=0.004 s, average=0.004 s; distance=7 kB, estimate=943 kB; lsn=0/214B5B0, redo lsn=0/214B558
+2026-08-12 09:58:52.176 CEST [12695] LOG:  checkpoint starting: time
+2026-08-12 09:58:52.542 CEST [12695] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.314 s, sync=0.014 s, total=0.366 s; sync files=4, longest=0.009 s, average=0.004 s; distance=20 kB, estimate=851 kB; lsn=0/2150978, redo lsn=0/2150920
+2026-08-12 10:20:11.738 CEST [28653] ERROR:  syntax error at or near "TEXT" at character 54
+2026-08-12 10:20:11.738 CEST [28653] STATEMENT:  ALTER TABLE oauth_accounts DROP COLUMN refresh_token TEXT;
+2026-08-12 10:20:22.208 CEST [28653] ERROR:  syntax error at or near "APP" at character 28
+2026-08-12 10:20:22.208 CEST [28653] STATEMENT:  ALTER TABLE oauth_accounts APP COLUMN refresh_token TEXT;
+2026-08-12 10:20:58.077 CEST [28653] ERROR:  syntax error at or near "TEXT" at character 53
+2026-08-12 10:20:58.077 CEST [28653] STATEMENT:  ALTER TABLE oauth_accounts DROP COLUMN access_token TEXT;
+2026-08-12 10:23:52.920 CEST [12695] LOG:  checkpoint starting: time
+2026-08-12 10:23:54.189 CEST [12695] LOG:  checkpoint complete: wrote 12 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=1.234 s, sync=0.009 s, total=1.270 s; sync files=12, longest=0.005 s, average=0.001 s; distance=57 kB, estimate=771 kB; lsn=0/215F110, redo lsn=0/215F0B8
+2026-08-12 10:48:52.630 CEST [12695] LOG:  checkpoint starting: time
+2026-08-12 10:48:52.919 CEST [12695] LOG:  checkpoint complete: wrote 2 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.230 s, sync=0.005 s, total=0.292 s; sync files=2, longest=0.005 s, average=0.003 s; distance=13 kB, estimate=695 kB; lsn=0/2162740, redo lsn=0/21626E8
+2026-08-12 11:22:01.430 CEST [46108] ERROR:  index "idx_person_email" does not exist
+2026-08-12 11:22:01.430 CEST [46108] STATEMENT:  DROP TABLE user_book_booking;
+	DROP TABLE user_book_manage;
+	DROP TABLE user_room_booking;
+	DROP TABLE user_seat_booking;
+	DROP INDEX idx_oauth_accounts_provider_user_id;
+	DROP INDEX idx_user_sessions_token_hash;
+	DROP INDEX idx_person_email;
+	DROP TABLE oauth_accounts;
+	DROP TABLE user_sessions;
+	DROP TABLE book;
+	DROP TABLE seat;
+	DROP TABLE organization;
+	DROP TABLE person;
+	DROP TABLE room;
+	
+	
+2026-08-12 11:23:53.490 CEST [12695] LOG:  checkpoint starting: time
+2026-08-12 11:23:56.128 CEST [12695] LOG:  checkpoint complete: wrote 23 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.530 s, sync=0.075 s, total=2.638 s; sync files=29, longest=0.019 s, average=0.003 s; distance=203 kB, estimate=646 kB; lsn=0/21E8E70, redo lsn=0/2195388
+2026-08-12 11:28:53.188 CEST [12695] LOG:  checkpoint starting: time
+2026-08-12 11:29:05.526 CEST [12695] LOG:  checkpoint complete: wrote 122 buffers (0.7%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=12.273 s, sync=0.033 s, total=12.339 s; sync files=86, longest=0.005 s, average=0.001 s; distance=856 kB, estimate=856 kB; lsn=0/226B610, redo lsn=0/226B580
+2026-08-12 12:02:54.118 CEST [28653] ERROR:  syntax error at or near "person" at character 10
+2026-08-12 12:02:54.118 CEST [28653] STATEMENT:  Select * person;
+2026-08-12 12:03:54.157 CEST [12695] LOG:  checkpoint starting: time
+2026-08-12 12:04:09.220 CEST [12695] LOG:  checkpoint complete: wrote 149 buffers (0.9%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=14.991 s, sync=0.055 s, total=15.064 s; sync files=135, longest=0.007 s, average=0.001 s; distance=1401 kB, estimate=1401 kB; lsn=0/23C9AE8, redo lsn=0/23C9A58

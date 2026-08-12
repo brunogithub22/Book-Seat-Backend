@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"backend/internal/security"
@@ -27,6 +28,10 @@ type AuthHandler struct {
 
 type CSRFResponse struct {
 	Token bool `json:"token"`
+}
+
+type AccountType struct {
+	IsGoogle bool `json:"isGoogle"`
 }
 
 // NewAuthHandler is the constructor called by router.NewRouter.
@@ -58,6 +63,46 @@ type RoleData struct {
 	Permissions []string `json:"permissions"`
 }
 
+func (h *AuthHandler) GetAccountType(w http.ResponseWriter, r *http.Request) {
+
+	var payload SignupPayload
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields() // rejects unexpected fields instead of silently ignoring them
+
+	if err := decoder.Decode(&payload); err != nil {
+		http.Error(w, `{"message":"invalid request body"}`, http.StatusBadRequest)
+		return
+	}
+
+	if payload.Email == "" || payload.Password == "" {
+		http.Error(w, `{"message":"email and password are required"}`, http.StatusBadRequest)
+		return
+	}
+
+	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
+
+	user, err := h.Queries.GetUserByEmail(r.Context(), payload.Email)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			slog.Info("No existing account found for", "email", payload.Email)
+		} else {
+			slog.Error("email verification failed", "error", err)
+			http.Error(w, "invalid email verification", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(
+		AccountType{
+			IsGoogle: user.GoogleAccount,
+		},
+	)
+
+}
+
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	removeAccount := func(Id pgtype.UUID, email string) {
@@ -74,6 +119,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	var payload SignupPayload
 	var hashedPassword string
+
 	userAgent := r.Header.Get("User-Agent")
 	slog.Info("SIGN UP Started")
 	slog.Info("Remeber", "", payload.Remember)
@@ -101,8 +147,10 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
+
 	user, err := h.Queries.GetUserByEmail(r.Context(), payload.Email)
-	exists := errors.Is(err, pgx.ErrNoRows)
+	not_exists := errors.Is(err, pgx.ErrNoRows)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			slog.Info("No existing account found for", "email", payload.Email)
@@ -115,7 +163,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if exists {
+	if not_exists {
 		hashedPassword, err = service.HashPassword(h.ArgonHasher, payload.Password)
 		if err != nil {
 			slog.Error("Failed to hash password", "error", err.Error())
@@ -142,11 +190,12 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 			RawMessage: roleJSON,
 			Valid:      true, // Tells the driver this value is not NULL
 		},
-		UserName:     payload.FirstName,
-		Surname:      payload.LastName,
-		PasswordHash: hashedPassword,
-		Email:        payload.Email,
-		Remember:     payload.Remember,
+		UserName:      payload.FirstName,
+		Surname:       payload.LastName,
+		PasswordHash:  hashedPassword,
+		Email:         payload.Email,
+		Remember:      payload.Remember,
+		GoogleAccount: false,
 	})
 
 	// 1. Create the JWT access token
@@ -262,6 +311,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Raw Cookie Header Received", "cookie_header", r.Header.Get("Cookie"))
 
 	var payload SigninPayload
+
 	userAgent := r.Header.Get("User-Agent")
 	clientIP := security.GetClientIP(r)
 
@@ -288,6 +338,8 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"message":"email and password are required"}`, http.StatusBadRequest)
 		return
 	}
+
+	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
 
 	user, err := h.Queries.GetUserByEmail(r.Context(), payload.Email)
 

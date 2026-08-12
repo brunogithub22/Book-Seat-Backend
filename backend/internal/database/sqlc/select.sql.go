@@ -99,21 +99,27 @@ func (q *Queries) GetRefreshTokenByHash(ctx context.Context, arg GetRefreshToken
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password_hash
+SELECT id, email, password_hash, google_account
 FROM person
 WHERE email = $1
 `
 
 type GetUserByEmailRow struct {
-	ID           pgtype.UUID `json:"id"`
-	Email        string      `json:"email"`
-	PasswordHash string      `json:"password_hash"`
+	ID            pgtype.UUID `json:"id"`
+	Email         string      `json:"email"`
+	PasswordHash  string      `json:"password_hash"`
+	GoogleAccount bool        `json:"google_account"`
 }
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i GetUserByEmailRow
-	err := row.Scan(&i.ID, &i.Email, &i.PasswordHash)
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.GoogleAccount,
+	)
 	return i, err
 }
 

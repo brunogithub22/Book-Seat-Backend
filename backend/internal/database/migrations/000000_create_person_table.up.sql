@@ -7,8 +7,11 @@ CREATE TABLE person (
     surname VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     email TEXT NOT NULL,
-    remember BOOLEAN NOT NULL
+    remember BOOLEAN NOT NULL,
+    google_account BOOLEAN NOT NULL
 );
+
+CREATE UNIQUE INDEX idx_person_email ON person (email);
 
 CREATE TABLE book (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -52,22 +55,7 @@ CREATE TABLE user_sessions (
 -- Index for fast token lookups
 CREATE INDEX idx_user_sessions_token_hash ON user_sessions(token_hash);
 
-CREATE TABLE oauth_accounts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES person(id) ON DELETE CASCADE,
-    provider VARCHAR(50) NOT NULL,
-    provider_user_id VARCHAR(255) NOT NULL,
-    access_token TEXT,
-    refresh_token TEXT,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    -- Ensures a user can only link a specific OAuth account once
-    CONSTRAINT unique_provider_user UNIQUE (provider, provider_user_id)
-);
-
--- Index for fast lookup when a user logs in via OAuth
-CREATE INDEX idx_oauth_accounts_provider_user_id ON oauth_accounts(provider, provider_user_id);
 
 Create TABLE user_book_booking (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
