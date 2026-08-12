@@ -13,11 +13,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
-
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/idtoken"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type AuthGoogleHandler struct {
@@ -168,7 +169,20 @@ func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slog.Info(claims.Email)
+	slog.Info("Email", ":", claims.Email)
+
+	user, err := h.Queries.GetUserByEmail(r.Context(), claims.Email)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			slog.Info("No existing account found for", "email", claims.Email)
+		} else {
+			slog.Error("email verification failed", "error", err)
+			http.Error(w, "invalid email verification", http.StatusUnauthorized)
+			return
+		}
+	}
+
+	slog.Info("Account was not previulsy addedd")
 
 	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/dashboard", http.StatusFound)
 }
