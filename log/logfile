@@ -229,3 +229,125 @@
 2026-08-12 16:45:51.373 CEST [3507] LOG:  database system is ready to accept connections
 2026-08-12 16:50:51.365 CEST [3511] LOG:  checkpoint starting: time
 2026-08-12 16:52:34.940 CEST [3511] LOG:  checkpoint complete: wrote 1025 buffers (6.3%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=103.280 s, sync=0.237 s, total=103.575 s; sync files=391, longest=0.014 s, average=0.001 s; distance=5381 kB, estimate=5381 kB; lsn=0/1CA09F0, redo lsn=0/1CA0960
+2026-08-13 10:56:50.207 CEST [2656] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-08-13 10:56:50.212 CEST [2656] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-08-13 10:56:50.214 CEST [2656] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-08-13 10:56:50.223 CEST [2665] LOG:  database system was shut down at 2026-08-13 10:56:49 CEST
+2026-08-13 10:56:50.230 CEST [2656] LOG:  database system is ready to accept connections
+2026-08-13 11:01:50.323 CEST [2663] LOG:  checkpoint starting: time
+2026-08-13 11:03:33.287 CEST [2663] LOG:  checkpoint complete: wrote 1025 buffers (6.3%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=102.764 s, sync=0.112 s, total=102.964 s; sync files=391, longest=0.008 s, average=0.001 s; distance=5381 kB, estimate=5381 kB; lsn=0/1CA0F78, redo lsn=0/1CA0EE8
+2026-08-13 12:27:09.386 CEST [31109] ERROR:  column "google_account" does not exist at character 63
+2026-08-13 12:27:09.386 CEST [31109] STATEMENT:  -- name: GetUserByEmail :one
+	SELECT id, email, password_hash, google_account
+	FROM person
+	WHERE email = $1
+	
+2026-08-13 12:31:51.914 CEST [2663] LOG:  checkpoint starting: time
+2026-08-13 12:31:53.509 CEST [2663] LOG:  checkpoint complete: wrote 15 buffers (0.1%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=1.553 s, sync=0.015 s, total=1.608 s; sync files=4, longest=0.009 s, average=0.004 s; distance=112 kB, estimate=4854 kB; lsn=0/1CBD110, redo lsn=0/1CBD0B8
+2026-08-13 12:35:03.103 CEST [34497] ERROR:  index "idx_person_email" does not exist
+2026-08-13 12:35:03.103 CEST [34497] STATEMENT:  DROP TABLE user_book_booking;
+	DROP TABLE user_book_manage;
+	DROP TABLE user_room_booking;
+	DROP TABLE user_seat_booking;
+	DROP INDEX idx_user_sessions_token_hash;
+	DROP INDEX idx_person_email;
+	DROP TABLE user_sessions;
+	DROP TABLE book;
+	DROP TABLE seat;
+	DROP TABLE organization;
+	DROP TABLE person;
+	DROP TABLE room;
+	
+	
+2026-08-13 12:35:46.225 CEST [34822] ERROR:  cannot drop table person because other objects depend on it
+2026-08-13 12:35:46.225 CEST [34822] DETAIL:  constraint oauth_accounts_user_id_fkey on table oauth_accounts depends on table person
+2026-08-13 12:35:46.225 CEST [34822] HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+2026-08-13 12:35:46.225 CEST [34822] STATEMENT:  DROP TABLE user_book_booking;
+	DROP TABLE user_book_manage;
+	DROP TABLE user_room_booking;
+	DROP TABLE user_seat_booking;
+	DROP INDEX idx_user_sessions_token_hash;
+	
+	DROP TABLE user_sessions;
+	DROP TABLE book;
+	DROP TABLE seat;
+	DROP TABLE organization;
+	DROP TABLE person;
+	DROP TABLE room;
+	
+	
+2026-08-13 12:36:35.928 CEST [35175] ERROR:  cannot drop table person because other objects depend on it
+2026-08-13 12:36:35.928 CEST [35175] DETAIL:  constraint oauth_accounts_user_id_fkey on table oauth_accounts depends on table person
+2026-08-13 12:36:35.928 CEST [35175] HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+2026-08-13 12:36:35.928 CEST [35175] STATEMENT:  DROP INDEX idx_user_sessions_token_hash;
+	
+	DROP TABLE user_book_booking;
+	DROP TABLE user_book_manage;
+	DROP TABLE user_room_booking;
+	DROP TABLE user_seat_booking;
+	
+	DROP TABLE user_sessions;
+	DROP TABLE book;
+	DROP TABLE seat;
+	DROP TABLE organization;
+	DROP TABLE person;
+	DROP TABLE room;
+	
+	
+2026-08-13 12:36:51.610 CEST [2663] LOG:  checkpoint starting: time
+2026-08-13 12:36:54.250 CEST [2663] LOG:  checkpoint complete: wrote 26 buffers (0.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.620 s, sync=0.010 s, total=2.641 s; sync files=24, longest=0.005 s, average=0.001 s; distance=225 kB, estimate=4391 kB; lsn=0/1CF5750, redo lsn=0/1CF56F8
+2026-08-13 12:37:39.557 CEST [35609] ERROR:  index "idx_user_sessions_token_hash" does not exist
+2026-08-13 12:37:39.557 CEST [35609] STATEMENT:  
+	
+	DROP TABLE user_book_booking;
+	DROP TABLE user_book_manage;
+	DROP TABLE user_room_booking;
+	DROP TABLE user_seat_booking;
+	
+	DROP TABLE user_sessions;
+	DROP TABLE book;
+	DROP TABLE seat;
+	DROP TABLE organization;
+	DROP INDEX idx_user_sessions_token_hash;
+	DROP TABLE person;
+	DROP TABLE room;
+	
+	
+2026-08-13 12:38:03.513 CEST [35825] ERROR:  cannot drop table person because other objects depend on it
+2026-08-13 12:38:03.513 CEST [35825] DETAIL:  constraint oauth_accounts_user_id_fkey on table oauth_accounts depends on table person
+2026-08-13 12:38:03.513 CEST [35825] HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+2026-08-13 12:38:03.513 CEST [35825] STATEMENT:  
+	
+	DROP TABLE user_book_booking;
+	DROP TABLE user_book_manage;
+	DROP TABLE user_room_booking;
+	DROP TABLE user_seat_booking;
+	
+	DROP TABLE user_sessions;
+	DROP TABLE book;
+	DROP TABLE seat;
+	DROP TABLE organization;
+	DROP TABLE person;
+	DROP TABLE room;
+	
+	
+2026-08-13 12:38:27.420 CEST [36032] ERROR:  cannot drop table person because other objects depend on it
+2026-08-13 12:38:27.420 CEST [36032] DETAIL:  constraint oauth_accounts_user_id_fkey on table oauth_accounts depends on table person
+2026-08-13 12:38:27.420 CEST [36032] HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+2026-08-13 12:38:27.420 CEST [36032] STATEMENT:  
+	
+	DROP TABLE user_book_booking;
+	DROP TABLE user_book_manage;
+	DROP TABLE user_room_booking;
+	DROP TABLE user_seat_booking;
+	
+	DROP TABLE user_sessions;
+	DROP TABLE book;
+	DROP TABLE seat;
+	DROP TABLE organization;
+	
+	DROP TABLE room;
+	DROP TABLE person;
+	
+2026-08-13 12:41:51.355 CEST [2663] LOG:  checkpoint starting: time
+2026-08-13 12:42:04.402 CEST [2663] LOG:  checkpoint complete: wrote 129 buffers (0.8%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=12.965 s, sync=0.050 s, total=13.048 s; sync files=100, longest=0.007 s, average=0.001 s; distance=1059 kB, estimate=4058 kB; lsn=0/1E28D80, redo lsn=0/1DFE648

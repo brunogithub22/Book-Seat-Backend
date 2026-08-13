@@ -14,6 +14,7 @@ import (
 	"backend/internal/service"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sqlc-dev/pqtype"
@@ -104,91 +105,64 @@ func (h *AuthHandler) GetAccountType(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
-
-	removeAccount := func(Id pgtype.UUID, email string) {
-		err := h.Queries.DeleteUser(r.Context(), sqlc.DeleteUserParams{
-			ID:    Id,
-			Email: email,
-		})
-		if err == nil {
-			slog.Info("Account deleted")
-		} else {
-			slog.Error("Account was not deleted")
-		}
-	}
-
 	var payload SignupPayload
-	var hashedPassword string
 
 	userAgent := r.Header.Get("User-Agent")
-	slog.Info("SIGN UP Started")
-	slog.Info("Remeber", "", payload.Remember)
 	clientIP := security.GetClientIP(r)
 
 	tokenService, err := service.Tokenkey()
 	if err != nil {
-		http.Error(w, "JWTPassword error", http.StatusInternalServerError)
-		slog.Error("JWT Error")
+		slog.Error("JWT error", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
 	defer r.Body.Close()
-
 	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields() // rejects unexpected fields instead of silently ignoring them
+	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&payload); err != nil {
-		http.Error(w, `{"message":"invalid request body"}`, http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if payload.Email == "" || payload.Password == "" {
-		http.Error(w, `{"message":"email and password are required"}`, http.StatusBadRequest)
+		http.Error(w, "email and password are required", http.StatusBadRequest)
 		return
 	}
-
 	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
 
-	user, err := h.Queries.GetUserByEmail(r.Context(), payload.Email)
-	not_exists := errors.Is(err, pgx.ErrNoRows)
+	hashedPassword, err := service.HashPassword(h.ArgonHasher, payload.Password)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			slog.Info("No existing account found for", "email", payload.Email)
-		} else {
-			slog.Error("Something went wrong during the check of the account")
-		}
-	} else {
-		slog.Error("Account already exists for", "email", user.Email, "id", user.ID)
-		http.Error(w, `{"message":"account already exists"}`, http.StatusConflict)
+		slog.Error("failed to hash password", "error", err)
+		http.Error(w, "failed to hash password", http.StatusInternalServerError)
 		return
 	}
 
-	if not_exists {
-		hashedPassword, err = service.HashPassword(h.ArgonHasher, payload.Password)
-		if err != nil {
-			slog.Error("Failed to hash password", "error", err.Error())
-			http.Error(w, `{"message":"failed to hash password"}`, http.StatusInternalServerError)
-			return
-		}
-		slog.Info("Successfully hashed password for", "email", payload.Email, "hashedPassword", hashedPassword)
-	}
-
-	roleObj := RoleData{
-		Role:        "admin", // or payload.Role
+	roleJSON, err := json.Marshal(RoleData{
+		Role:        "admin",
 		Permissions: []string{"read", "write", "delete"},
-	}
-
-	// 2. Marshal to []byte
-	roleJSON, err := json.Marshal(roleObj)
+	})
 	if err != nil {
-		http.Error(w, `{"message":"invalid role format"}`, http.StatusBadRequest)
+		http.Error(w, "invalid role format", http.StatusBadRequest)
 		return
 	}
 
-	newUser, err := h.Queries.CreatePerson(r.Context(), sqlc.CreatePersonParams{
+	// --- transaction starts here ---
+	tx, err := h.DB.Begin(r.Context())
+	if err != nil {
+		slog.Error("failed to begin transaction", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback(r.Context())
+
+	qtx := h.Queries.WithTx(tx)
+
+	newUser, err := qtx.CreatePerson(r.Context(), sqlc.CreatePersonParams{
 		UserRole: pqtype.NullRawMessage{
 			RawMessage: roleJSON,
-			Valid:      true, // Tells the driver this value is not NULL
+			Valid:      true,
 		},
 		UserName:      payload.FirstName,
 		Surname:       payload.LastName,
@@ -197,28 +171,33 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		Remember:      payload.Remember,
 		GoogleAccount: false,
 	})
-
-	// 1. Create the JWT access token
-	accessToken, err := tokenService.GenerateAccessToken(newUser.ID.String(), newUser.Email)
 	if err != nil {
-		slog.Error("failed to generate access token", "error", err)
-		removeAccount(newUser.ID, newUser.Email)
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" { // unique_violation
+			http.Error(w, "account already exists", http.StatusConflict)
+			return
+		}
+		slog.Error("failed to create person", "error", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	// 2. Create the opaque refresh token (raw for client, hash for DB)
-	refreshToken, refreshHash, err := security.GenerateRefreshToken()
+	accessToken, err := tokenService.GenerateAccessToken(newUser.ID.String(), newUser.Email)
 	if err != nil {
-		slog.Error("failed to generate refresh token", "error", err)
-		removeAccount(newUser.ID, newUser.Email)
+		slog.Error("failed to generate access token", "error", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
 	if payload.Remember {
-		// 3. Persist only the hash
-		if err := h.Queries.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
+		refreshToken, refreshHash, err := security.GenerateRefreshToken()
+		if err != nil {
+			slog.Error("failed to generate refresh token", "error", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+
+		if err := qtx.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
 			UserID:    newUser.ID,
 			TokenHash: refreshHash,
 			ExpiresAt: pgtype.Timestamptz{Time: time.Now().Add(security.RefreshTokenTTL), Valid: true},
@@ -228,40 +207,43 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 			CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
 		}); err != nil {
 			slog.Error("failed to store refresh token", "error", err)
-			removeAccount(newUser.ID, newUser.Email)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
 
-		// 4. Send both raw tokens to the browser as HttpOnly cookies
-		security.SetAuthCookies(w, accessToken, refreshToken)
-		slog.Info("Auth cookies set for user", "email", newUser.Email, "id", newUser.ID)
+		// commit BEFORE setting cookies — never send auth cookies for a tx that might still roll back
+		if err := tx.Commit(r.Context()); err != nil {
+			slog.Error("failed to commit transaction", "error", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
 
+		security.SetAuthCookies(w, accessToken, refreshToken)
 	} else {
 		preAuthToken, err := tokenService.GeneratePreAuthToken(newUser.ID.String(), newUser.Email)
 		if err != nil {
 			slog.Error("failed to generate pre-auth token", "error", err)
-			removeAccount(newUser.ID, newUser.Email)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
+
+		if err := tx.Commit(r.Context()); err != nil {
+			slog.Error("failed to commit transaction", "error", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+
 		security.SetPreAuthToken(w, preAuthToken)
-		slog.Info("Pre-auth token set for user", "email", newUser.Email, "id", newUser.ID)
 	}
 
-	slog.Info("New user created", "email", newUser.Email, "id", newUser.ID)
+	slog.Info("new user created", "email", newUser.Email, "id", newUser.ID)
 
-	// 2. 🔍 CHECK IF COOKIES ARE INSERTED IN RESPONSE HEADERS
-	slog.Info("Response Set-Cookie Headers", "cookies", w.Header()["Set-Cookie"])
-	slog.Info("SIGN UP STOPED")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(
-		UserInfo{
-			Email: payload.Email,
-			Name:  payload.FirstName + payload.LastName,
-		},
-	)
+	json.NewEncoder(w).Encode(UserInfo{
+		Email: payload.Email,
+		Name:  payload.FirstName + payload.LastName,
+	})
 }
 
 func (h *AuthHandler) CSRF_SignIn(w http.ResponseWriter, r *http.Request) {
@@ -307,7 +289,6 @@ func (h *AuthHandler) CSRF_SignIn(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	slog.Info("SIGN IN STARTED")
-	// Print raw Cookie header received by Go
 	slog.Info("Raw Cookie Header Received", "cookie_header", r.Header.Get("Cookie"))
 
 	var payload SigninPayload
@@ -315,72 +296,68 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	userAgent := r.Header.Get("User-Agent")
 	clientIP := security.GetClientIP(r)
 
-	slog.Info("Remeber", "", payload.Remember)
-
 	tokenService, err := service.Tokenkey()
 	if err != nil {
-		http.Error(w, "JWTPassword error", http.StatusInternalServerError)
-		slog.Error("JWT Error")
+		slog.Error("JWT error", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
 	defer r.Body.Close()
-
 	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields() // rejects unexpected fields instead of silently ignoring them
+	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&payload); err != nil {
-		http.Error(w, `{"message":"invalid request body"}`, http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if payload.Email == "" || payload.Password == "" {
-		http.Error(w, `{"message":"email and password are required"}`, http.StatusBadRequest)
+		http.Error(w, "email and password are required", http.StatusBadRequest)
 		return
 	}
 
 	payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
 
 	user, err := h.Queries.GetUserByEmail(r.Context(), payload.Email)
-
-	// 1. Determine target hash (use dummy hash if user does not exist)
-	targetHash := user.PasswordHash
-	slog.Info("Password: ", "", targetHash)
 	userNotFound := errors.Is(err, pgx.ErrNoRows)
-
-	if userNotFound {
-		// Replace with a valid Argon2 hash string stored in your config/env
-		targetHash = os.Getenv("DUMMY_PASSWORD_HASH")
-	} else if err != nil {
-		http.Error(w, `{"message":"internal server error"}`, http.StatusInternalServerError)
+	if err != nil && !userNotFound {
+		slog.Error("failed to look up user", "error", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	// 2. ALWAYS execute VerifyPassword with payload.Password and targetHash
+	// 1. Determine target hash (use dummy hash if user does not exist) —
+	// this keeps timing consistent whether or not the account exists.
+	targetHash := user.PasswordHash
+	if userNotFound {
+		targetHash = os.Getenv("DUMMY_PASSWORD")
+	}
+
+	// 2. ALWAYS execute VerifyPassword, even for a nonexistent user
 	result, err := service.VerifyPassword(h.ArgonHasher, payload.Password, targetHash)
 	if err != nil {
-		http.Error(w, `{"message":"failed to verify password"}`, http.StatusInternalServerError)
+		slog.Error("failed to verify password", "error", err)
+		http.Error(w, "failed to verify password", http.StatusInternalServerError)
 		return
 	}
 
 	// 3. Reject if user was missing OR password check failed
 	if userNotFound || !result {
-		http.Error(w, `{"message":"invalid email or password"}`, http.StatusUnauthorized)
+		http.Error(w, "invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
-	err = h.Queries.UpdateRemember(r.Context(), sqlc.UpdateRememberParams{
+	if err := h.Queries.UpdateRemember(r.Context(), sqlc.UpdateRememberParams{
 		Remember: payload.Remember,
 		ID:       user.ID,
 		Email:    user.Email,
-	})
-
-	if err != nil {
-		http.Error(w, `{"message":"impossible to save the remember stuff"}`, http.StatusUnauthorized)
+	}); err != nil {
+		slog.Error("failed to update remember flag", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	// Create the JWT access token
 	accessToken, err := tokenService.GenerateAccessToken(user.ID.String(), user.Email)
 	if err != nil {
 		slog.Error("failed to generate access token", "error", err)
@@ -388,15 +365,43 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	addRefreshToken := func() {
-		//Create Refresh Token
+	// Existing stale refresh token cookie from a previous session, if any.
+	oldHash, err := service.GetRefreshToken(tokenService, r)
+	if err != nil {
+		slog.Error("failed to get refresh token from request", "error", err)
+		// not fatal — just means there's nothing to clean up
+	}
+
+	// --- transaction: revoke old token (if any) + issue new one, atomically ---
+	tx, err := h.DB.Begin(r.Context())
+	if err != nil {
+		slog.Error("failed to begin transaction", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback(r.Context())
+	qtx := h.Queries.WithTx(tx)
+
+	if oldHash != "" {
+		if err := qtx.DeleteRefreshToken(r.Context(), sqlc.DeleteRefreshTokenParams{
+			UserID:    user.ID,
+			TokenHash: oldHash,
+		}); err != nil {
+			slog.Error("failed to delete old refresh token", "error", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if payload.Remember {
 		refreshToken, refreshHash, err := security.GenerateRefreshToken()
 		if err != nil {
 			slog.Error("failed to generate refresh token", "error", err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
-		if err := h.Queries.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
+
+		if err := qtx.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
 			UserID:    user.ID,
 			TokenHash: refreshHash,
 			ExpiresAt: pgtype.Timestamptz{Time: time.Now().Add(security.RefreshTokenTTL), Valid: true},
@@ -409,41 +414,16 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
-		// 4. Send both raw tokens to the browser as HttpOnly cookies
+
+		if err := tx.Commit(r.Context()); err != nil {
+			slog.Error("failed to commit transaction", "error", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+
 		security.SetAuthCookies(w, accessToken, refreshToken)
+		slog.Info("refresh token issued for user", "email", user.Email, "id", user.ID)
 
-	}
-
-	hash, err := service.GetRefreshToken(tokenService, r)
-	if err != nil {
-		slog.Error("failed to get refresh token", "error", err)
-	}
-
-	if hash != "" {
-
-		slog.Info("", "refreshTokenHash", hash)
-
-		tokenData, err := h.Queries.GetRefreshTokenByHash(r.Context(), sqlc.GetRefreshTokenByHashParams{
-			TokenHash: hash,
-			IsRevoked: false,
-		})
-		if err != nil {
-			slog.Error("failed to get refresh token by hash", "error", err)
-		}
-
-		err = h.Queries.DeleteRefreshToken(r.Context(), sqlc.DeleteRefreshTokenParams{
-			UserID:    user.ID,
-			TokenHash: tokenData.TokenHash,
-		})
-		if err != nil {
-			slog.Error("failed to delete all refresh tokens", "error", err)
-		}
-
-	}
-
-	if payload.Remember {
-		addRefreshToken()
-		slog.Info("Refresh token added for user", "email", user.Email, "id", user.ID)
 	} else {
 		preAuthToken, err := tokenService.GeneratePreAuthToken(user.ID.String(), user.Email)
 		if err != nil {
@@ -451,14 +431,20 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
+
+		if err := tx.Commit(r.Context()); err != nil {
+			slog.Error("failed to commit transaction", "error", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+
 		security.SetPreAuthToken(w, preAuthToken)
-		slog.Info("Pre-auth token set for user", "email", user.Email, "id", user.ID)
+		slog.Info("pre-auth token set for user", "email", user.Email, "id", user.ID)
 	}
 
-	slog.Info("SIGN IN STOPED")
+	slog.Info("SIGN IN STOPPED")
+	slog.Info("response Set-Cookie headers", "cookies", w.Header()["Set-Cookie"])
 
-	// 2. 🔍 CHECK IF COOKIES ARE INSERTED IN RESPONSE HEADERS
-	slog.Info("Response Set-Cookie Headers", "cookies", w.Header()["Set-Cookie"])
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
@@ -467,7 +453,6 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 			Name:  "",
 		},
 	)
-
 }
 
 func (h *AuthHandler) AuthMe(w http.ResponseWriter, r *http.Request) {

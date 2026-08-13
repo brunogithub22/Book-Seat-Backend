@@ -78,16 +78,21 @@ func verifyGoogleIDToken(ctx context.Context, rawIDToken string) (*GoogleClaims,
 	}, nil
 }
 
-var googleOAuthConfig = &oauth2.Config{
-	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-	RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"), // e.g. https://yourapp.com/api/auth/google/callback
-	Scopes: []string{
-		"openid",
-		"https://www.googleapis.com/auth/userinfo.email",
-		"https://www.googleapis.com/auth/userinfo.profile",
-	},
-	Endpoint: google.Endpoint,
+var googleOAuthConfig *oauth2.Config
+
+// call this once from main(), after godotenv.Load()
+func InitGoogleOAuthConfig() {
+	googleOAuthConfig = &oauth2.Config{
+		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+		Scopes: []string{
+			"openid",
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+		},
+		Endpoint: google.Endpoint,
+	}
 }
 
 func generateState() (string, error) {
@@ -125,7 +130,7 @@ func (h *AuthGoogleHandler) Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	url := googleOAuthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
-	slog.Info("Callback STOPPED")
+	slog.Info("Login STOPPED")
 	http.Redirect(w, r, url, http.StatusFound)
 }
 
@@ -196,7 +201,17 @@ func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
 
 	slog.Info("Email", ":", claims.Email)
 
-	user, err := h.Queries.GetUserByEmail(r.Context(), claims.Email)
+	// --- Step 2: find-or-create, inside a transaction ---
+	tx, err := h.DB.Begin(r.Context())
+	if err != nil {
+		slog.Error("failed to begin transaction", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback(r.Context())
+	qtx := h.Queries.WithTx(tx)
+
+	user, err := qtx.GetUserByEmail(r.Context(), claims.Email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			slog.Info("No existing account found for", "email", claims.Email)
@@ -212,6 +227,7 @@ func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
 			slog.Info("No existing account found for", "email", user.Email)
 		} else {
 			slog.Error("Something went wrong during the check of the account")
+			return
 		}
 	}
 	if not_exists {
@@ -227,7 +243,7 @@ func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		newUser, err := h.Queries.CreatePerson(r.Context(), sqlc.CreatePersonParams{
+		newUser, err := qtx.CreatePerson(r.Context(), sqlc.CreatePersonParams{
 			UserRole: pqtype.NullRawMessage{
 				RawMessage: roleJSON,
 				Valid:      true, // Tells the driver this value is not NULL
@@ -267,7 +283,7 @@ func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 3. Persist only the hash
-	if err := h.Queries.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
+	if err := qtx.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
 		UserID:    userID,
 		TokenHash: refreshHash,
 		ExpiresAt: pgtype.Timestamptz{Time: time.Now().Add(security.RefreshTokenTTL), Valid: true},
@@ -277,6 +293,12 @@ func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
 	}); err != nil {
 		slog.Error("failed to store refresh token", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	if err := tx.Commit(r.Context()); err != nil {
+		slog.Error("failed to commit transaction", "error", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}

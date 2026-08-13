@@ -12,12 +12,20 @@ import (
 
 	"backend/internal/database"
 	"backend/internal/database/sqlc"
+	"backend/internal/handler"
 	"backend/internal/router"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	if err := godotenv.Load(); err != nil {
+		slog.Error("no .env file found, using system env vars")
+	}
+	handler.InitGoogleOAuthConfig()
 
 	logger := NewLogger()
 	slog.SetDefault(logger) // lets you call slog.Info(...) anywhere without passing logger around
