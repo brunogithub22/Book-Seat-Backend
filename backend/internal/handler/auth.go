@@ -55,8 +55,9 @@ type SigninPayload struct {
 }
 
 type UserInfo struct {
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	Email   string `json:"email"`
+	Name    string `json:"name"`
+	Surname string `json:"surname"`
 }
 
 type RoleData struct {
@@ -241,8 +242,9 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(UserInfo{
-		Email: payload.Email,
-		Name:  payload.FirstName + payload.LastName,
+		Email:   payload.Email,
+		Name:    payload.FirstName,
+		Surname: payload.LastName,
 	})
 }
 
@@ -348,7 +350,17 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.Queries.UpdateRemember(r.Context(), sqlc.UpdateRememberParams{
+	// --- transaction: revoke old token (if any) + issue new one, atomically ---
+	tx, err := h.DB.Begin(r.Context())
+	if err != nil {
+		slog.Error("failed to begin transaction", "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback(r.Context())
+	qtx := h.Queries.WithTx(tx)
+
+	if err := qtx.UpdateRemember(r.Context(), sqlc.UpdateRememberParams{
 		Remember: payload.Remember,
 		ID:       user.ID,
 		Email:    user.Email,
@@ -371,16 +383,6 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		slog.Error("failed to get refresh token from request", "error", err)
 		// not fatal — just means there's nothing to clean up
 	}
-
-	// --- transaction: revoke old token (if any) + issue new one, atomically ---
-	tx, err := h.DB.Begin(r.Context())
-	if err != nil {
-		slog.Error("failed to begin transaction", "error", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	defer tx.Rollback(r.Context())
-	qtx := h.Queries.WithTx(tx)
 
 	if oldHash != "" {
 		if err := qtx.DeleteRefreshToken(r.Context(), sqlc.DeleteRefreshTokenParams{
@@ -449,8 +451,9 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
 		UserInfo{
-			Email: payload.Email,
-			Name:  "",
+			Email:   payload.Email,
+			Name:    user.UserName,
+			Surname: user.Surname,
 		},
 	)
 }
@@ -506,8 +509,9 @@ func (h *AuthHandler) AuthMe(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
 		UserInfo{
-			Email: claims.Email,
-			Name:  user.UserName + " " + user.Surname,
+			Email:   claims.Email,
+			Name:    user.UserName,
+			Surname: user.Surname,
 		},
 	)
 }
@@ -573,8 +577,9 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(
 		UserInfo{
-			Email: tokenData.Email,
-			Name:  tokenData.UserName + " " + tokenData.Surname,
+			Email:   tokenData.Email,
+			Name:    tokenData.UserName,
+			Surname: tokenData.Surname,
 		},
 	)
 

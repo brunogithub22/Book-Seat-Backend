@@ -282,6 +282,24 @@ func (h *AuthGoogleHandler) Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Existing stale refresh token cookie from a previous session, if any.
+	oldHash, err := service.GetRefreshToken(tokenService, r)
+	if err != nil {
+		slog.Error("failed to get refresh token from request", "error", err)
+		// not fatal — just means there's nothing to clean up
+	}
+
+	if oldHash != "" {
+		if err := qtx.DeleteRefreshToken(r.Context(), sqlc.DeleteRefreshTokenParams{
+			UserID:    user.ID,
+			TokenHash: oldHash,
+		}); err != nil {
+			slog.Error("failed to delete old refresh token", "error", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	// 3. Persist only the hash
 	if err := qtx.InsertRefreshToken(r.Context(), sqlc.InsertRefreshTokenParams{
 		UserID:    userID,

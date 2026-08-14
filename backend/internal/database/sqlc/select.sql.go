@@ -99,7 +99,7 @@ func (q *Queries) GetRefreshTokenByHash(ctx context.Context, arg GetRefreshToken
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password_hash, google_account
+SELECT id, email, password_hash, google_account,user_name,surname
 FROM person
 WHERE email = $1
 `
@@ -109,6 +109,8 @@ type GetUserByEmailRow struct {
 	Email         string      `json:"email"`
 	PasswordHash  string      `json:"password_hash"`
 	GoogleAccount bool        `json:"google_account"`
+	UserName      string      `json:"user_name"`
+	Surname       string      `json:"surname"`
 }
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
@@ -119,6 +121,8 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 		&i.Email,
 		&i.PasswordHash,
 		&i.GoogleAccount,
+		&i.UserName,
+		&i.Surname,
 	)
 	return i, err
 }

@@ -2,7 +2,7 @@
 SELECT * FROM book;
 
 -- name: GetUserByEmail :one
-SELECT id, email, password_hash, google_account
+SELECT id, email, password_hash, google_account,user_name,surname
 FROM person
 WHERE email = $1;
 
